@@ -7,7 +7,6 @@ import os
 # ==========================================
 SECRET_PASSWORD = "2025"
 JSON_FILE = "microwave_data.json"
-# クラウド上のファイル名(大文字Q)に合わせる
 TEMPLATE_FILE = "Questions_template.json" 
 
 st.set_page_config(page_title="Rensou Training", page_icon="🎮")
@@ -44,7 +43,8 @@ if not data or not template:
     st.error("データファイルが見つかりません。")
     st.stop()
 
-st.success(f"Login OK! Target: **{data['item_name_en']}**")
+# ★修正ポイント：ここで答えを表示しないように変更
+st.success("Login OK! Game Start! 🎮")
 st.divider()
 
 if "clue_log" not in st.session_state:
@@ -54,7 +54,7 @@ if "clue_log" not in st.session_state:
 # 4. ゲーム進行エリア
 # ==========================================
 
-# ★追加：音声入力の注意書き
+# 音声入力の注意書き
 st.warning("⚠️ 音声入力でやる場合は、スマホを「英語キーボード」に切り替えてからマイクボタンを押してください。")
 
 # ステップ選択（カンペ用）
