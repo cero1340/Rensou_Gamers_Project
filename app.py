@@ -10,8 +10,21 @@ JSON_FILE = "microwave_data.json"
 # クラウド上のファイル名(大文字Q)に合わせる
 TEMPLATE_FILE = "Questions_template.json" 
 
-# ブラウザのタブ名も「連想」に変更
+# ブラウザのタブ名設定
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
+
+# ★デザイン変更：タイトルを筆文字（Yuji Syuku）にする設定
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
+
+/* タイトル(h1)を筆文字にする */
+h1 {
+    font-family: 'Yuji Syuku', serif !important;
+    font-weight: 400;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ==========================================
 # 2. 関数定義
@@ -30,7 +43,7 @@ def load_json(filename):
 # 3. メイン処理開始 (初期化)
 # ==========================================
 
-# ★修正ポイント：タイトルを日本語化
+# タイトル（筆文字になります）
 st.title("🔒 連想 Gamers Training App")
 password = st.text_input("メンバー限定パスワード", type="password")
 
