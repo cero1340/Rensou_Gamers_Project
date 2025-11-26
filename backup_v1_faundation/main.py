@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import keyboard
 
 # === 設定エリア ===
 JSON_FILE_NAME = "microwave_data.json"
@@ -11,77 +10,104 @@ INPUT_TEXT_FILE = "current_question.txt"
 OUTPUT_PATH_FILE = "next_wav_path.txt"
 THINKING_FILE = "thinking_state.txt"
 AUDIO_DIR_NAME = "audio"
-DEFAULT_WAV = "again.wav"
-PAUSE_HOTKEY = "f9"
+DEFAULT_WAV = "none.wav"
 
-is_paused = False
-
+# ファイル書き込み関数
 def write_file(filename, content):
     try:
         path = os.path.join(BASE_DIR, filename)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(content)
-    except:
-        pass
+    except Exception as e:
+        print(f"書き込みエラー: {e}")
 
-def toggle_pause(e):
-    global is_paused
-    is_paused = not is_paused
-    if is_paused:
-        print(f"\n[一時停止] LocalVocal OFF (解除: {PAUSE_HOTKEY})")
-        write_file(THINKING_FILE, "2") # 2 = 完全停止
-    else:
-        print(f"\n[再開] LocalVocal ON")
-        write_file(THINKING_FILE, "0") # 0 = 待機
-
+# JSON読み込み関数
 def load_rules():
     try:
-        with open(os.path.join(BASE_DIR, JSON_FILE_NAME), 'r', encoding='utf-8') as f:
+        json_path = os.path.join(BASE_DIR, JSON_FILE_NAME)
+        print(f"JSON読み込み中: {json_path}")
+        with open(json_path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except:
+    except Exception as e:
+        print(f"★JSON読み込み失敗: {e}")
         return None
 
+# 回答検索関数
 def find_response(text, data):
     text = text.lower()
     rules = []
+    
+    # JSONの構造を展開してリスト化
     for cat, items in data.get("rules", {}).items():
         for k, v in items.items():
             rules.append((k.lower(), v))
+    
+    # 長いキーワード順に並べ替え（誤爆防止）
     rules.sort(key=lambda x: len(x[0]), reverse=True)
     
     for k, v in rules:
         if k in text:
-            print(f"ヒット: {k} -> {v}")
-            return data.get("response_map", {}).get(v)
+            print(f"ヒットしました: '{k}' -> Key: '{v}'")
+            
+            # 1. response_map からファイル名を探す
+            wav_file = data.get("response_map", {}).get(v)
+            
+            # 2. 見つかればそれを返す
+            if wav_file:
+                return wav_file
+            
+            # 3. 見つからない場合、JSONに直接ファイル名が書かれている可能性をケア
+            if v.endswith(".wav"):
+                return v
+            
+            print(f"★警告: Key '{v}' に対応するWAVファイルが response_map にありません。")
+            return DEFAULT_WAV
+            
+    print("ヒットするキーワードがありませんでした。")
     return DEFAULT_WAV
 
 def main():
-    print("=== システム起動（フィルタ制御あり） ===")
-    keyboard.on_press_key(PAUSE_HOTKEY, toggle_pause)
+    print("=== AI回答システム Ver 1.2 (常時監視モード) ===")
+    print("初期化中...")
+
+    # ルール読み込み
     data = load_rules()
-    if not data: return
+    if not data:
+        print("プログラムを終了します。JSONファイルを確認してください。")
+        time.sleep(10)
+        return
 
     input_path = os.path.join(BASE_DIR, INPUT_TEXT_FILE)
-    last_time = 0
     audio_dir = os.path.join(BASE_DIR, AUDIO_DIR_NAME)
-
+    
+    # 初期化：各種ファイルをリセット
     write_file(OUTPUT_PATH_FILE, "")
     write_file(THINKING_FILE, "0")
     
+    last_time = 0
     if os.path.exists(input_path):
         last_time = os.path.getmtime(input_path)
 
+    print("準備完了。F9を押して話しかけてください。")
+
     try:
         while True:
-            time.sleep(0.5)
-            if is_paused: continue # 一時停止中は監視しない
+            # 0.1秒ごとにファイルをチェック（負荷はほぼゼロ）
+            time.sleep(0.1)
 
-            if not os.path.exists(input_path): continue
-            mtime = os.path.getmtime(input_path)
+            if not os.path.exists(input_path):
+                continue
 
+            # ファイルの更新日時をチェック
+            try:
+                mtime = os.path.getmtime(input_path)
+            except:
+                continue
+
+            # 更新があった場合のみ処理
             if mtime > last_time:
                 last_time = mtime
-                time.sleep(0.1)
+                time.sleep(0.1) # 書き込み完了待ち
                 
                 try:
                     with open(input_path, 'r', encoding='utf-8') as f:
@@ -90,28 +116,33 @@ def main():
                     continue
 
                 if not text: continue
-                print(f"\n質問: {text}")
+                
+                print(f"\n[質問検知] {text}")
 
-                # 1. 考え中ON (文字表示 & フィルタOFF)
+                # 1. OBSに「考え中」を表示させる
                 write_file(THINKING_FILE, "1")
-                print("考え中... (フィルタ停止)")
-
+                
+                # 演出：1.5秒待つ（AIが考えているフリ）
                 time.sleep(1.5)
 
+                # 2. 回答を決める
                 wav = find_response(text, data)
+                
                 if wav:
                     full_path = os.path.normpath(os.path.join(audio_dir, wav))
+                    print(f"[回答指示] {wav}")
+                    # 3. OBSにWAVパスを渡す（これで音が鳴る）
                     write_file(OUTPUT_PATH_FILE, full_path)
-                    print(f"回答: {wav}")
-
-                # 2. 考え中OFF (文字非表示 & フィルタON)
+                
+                # 4. OBSの「考え中」を消す
                 write_file(THINKING_FILE, "0")
 
+                # 次のために指示ファイルを空にしておく
                 time.sleep(1.0)
                 write_file(OUTPUT_PATH_FILE, "") 
 
     except KeyboardInterrupt:
-        print("終了")
+        print("\n終了します。")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,153 @@
+import streamlit as st
+import json
+import os
+
+# ==========================================
+# 1. 設定エリア
+# ==========================================
+SECRET_PASSWORD = "2025"
+JSON_FILE = "microwave_data.json"
+TEMPLATE_FILE = "questions_template.json"
+
+st.set_page_config(page_title="Rensou Training", page_icon="🎮")
+
+# ==========================================
+# 2. 関数定義
+# ==========================================
+def load_json(filename):
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            st.error(f"Error loading {filename}: {e}")
+            return None
+    return None
+
+# ==========================================
+# 3. メイン処理開始
+# ==========================================
+
+st.title("🔒 Rensou Gamers Training App")
+password = st.text_input("メンバー限定パスワード", type="password")
+
+if password != SECRET_PASSWORD:
+    st.info("パスワードを入力してください。(テスト用: 2025)")
+    st.stop()
+
+# データ読み込み
+data = load_json(JSON_FILE)
+template = load_json(TEMPLATE_FILE)
+
+if not data or not template:
+    st.error("データファイルが見つかりません。")
+    st.stop()
+
+st.success(f"Login OK! Target: **{data['item_name_en']}**")
+st.divider()
+
+if "clue_log" not in st.session_state:
+    st.session_state.clue_log = []
+
+# ==========================================
+# 4. ゲーム進行エリア
+# ==========================================
+
+# ステップ選択（あくまでカンペ用として残す）
+step_list = list(template.keys())
+current_step = st.selectbox("ステップを選択（カンペ用）", step_list)
+
+# カンペ表示用データ
+step_data = template[current_step]
+options_dict = step_data["options"]
+
+st.subheader("Q: What is your question?")
+
+# ★★★ ここが改良ポイント！フォーム化 ★★★
+# この `with st.form` で囲むと、PCのEnterキーで送信できるようになります
+with st.form(key='game_form', clear_on_submit=True):
+    
+    # 1. 音声/テキスト入力欄
+    user_input = st.text_input(
+        "🎤 A. 自分で聞く (音声/テキスト)", 
+        placeholder="例: Is it made of metal?"
+    )
+
+    # 2. 選択肢（カンペ）
+    selected_option_label = st.selectbox(
+        "📝 B. リストから選ぶ", 
+        ["(選択してください)"] + list(options_dict.keys())
+    )
+    
+    # 送信ボタン（これを押しても動くし、PCならEnterでも動く）
+    submit_button = st.form_submit_button(label='送信 (Submit)')
+
+
+# ==========================================
+# 5. 判定ロジック（ボタンが押されたら動く）
+# ==========================================
+if submit_button:
+    search_keyword = None
+    matched_step = current_step # どのステップでヒットしたか
+
+    # --- Aパターン: 自分で入力した場合 ---
+    if user_input:
+        input_text = user_input.lower()
+        
+        # 全ステップのテンプレートから検索する
+        found = False
+        for step_name, step_content in template.items():
+            for label, keyword in step_content["options"].items():
+                # キーワードかラベルが含まれていたらヒット
+                if keyword in input_text or label in input_text:
+                    search_keyword = keyword
+                    matched_step = step_name # ステップ名も上書き
+                    found = True
+                    break
+            if found:
+                break
+        
+        if not search_keyword:
+            st.warning("🤔 うまく聞き取れませんでした。別の言い方を試してみて！")
+
+    # --- Bパターン: リストから選んだ場合 ---
+    elif selected_option_label != "(選択してください)":
+        search_keyword = options_dict[selected_option_label]
+
+    # --- 結果表示 ---
+    if search_keyword:
+        # ルール検索
+        all_rules = {}
+        for cat in data["rules"].values():
+            all_rules.update(cat)
+        
+        if search_keyword in all_rules:
+            answer_key = all_rules[search_keyword]
+            display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
+            
+            if "YES" in display_answer or "CORRECT" in display_answer:
+                st.success(f"🤖 AI: **{display_answer}**")
+                st.balloons()
+                
+                # ログ保存
+                log_entry = f"{matched_step}: {search_keyword} ({display_answer})"
+                if log_entry not in st.session_state.clue_log:
+                    st.session_state.clue_log.append(log_entry)
+            else:
+                st.error(f"🤖 AI: **{display_answer}**")
+        else:
+            st.warning(f"🤔 データなし: {search_keyword}")
+
+# ==========================================
+# 6. 情報表示エリア
+# ==========================================
+st.divider()
+st.write("📝 **Clue Log (わかったことメモ)**")
+if st.session_state.clue_log:
+    for log in st.session_state.clue_log:
+        st.info(log)
+else:
+    st.caption("ヒントはここに溜まります。")
+
+with st.expander("答えを見る（ギブアップ）"):
+    st.write(f"正解は... **{data['item_name']} ({data['item_name_en']})** でした！")

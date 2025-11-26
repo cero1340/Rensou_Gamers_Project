@@ -9,16 +9,16 @@
     "some are yes": "some_are_yes.wav",
     "some people use it for work": "some_people_use.wav",
     "depends": "depends.wav",
-    "部分的にはイエス": "partial.wav", 
+    "部分的にはイエス": "partial_yes.wav", 
     "close": "close.wav",
     "correct": "correct.wav"
   },
   
   "rules": {
     "category_answer": {
-      "microwave": "correct.wav",
-      "電子レンジ": "correct.wav",
-      "レンジ": "correct.wav"
+      "microwave": "correct",
+      "電子レンジ": "correct",
+      "レンジ": "correct"
     },
     "category_basics_consumption": {
       "eat": "no",
@@ -26,15 +26,23 @@
       "animal": "no",
       "plant": "no",
       "mineral": "yes",
-      "それは動物ですか": "no"
+      "動物": "no"
     },
     "category_location": {
       "house": "yes",
+      "家の中": "yes",
+      "kitchen": "usually yes",
+      "bath": "no",
+      "living": "no",
+      "bed room": "no",
+      "closet": "no",
       "outside": "no",
-      "convinience store": "usually yes",
-      "百円ショップ": "no",
-      "100円ショップ": "no",
-      "elecronics store": "yes",
+      "convenience": "usually yes",
+      "コンビニ": "usually yes",
+      "ひゃくえん": "no",
+      "百円": "no",
+      "100円": "no",
+      "electronics store": "yes",
       "電気屋": "yes",
       "yodobashi camera": "yes",
       "home center": "usually yes",
@@ -90,7 +98,10 @@
     },
     "category_misc": {
       "battery": "no",
+      "バッテリ": "no",
       "electricity": "yes",
+      "electri": "yes",
+      "電気を": "yes",
       "gas": "no", 
       "numbers": "usually yes",
       "letters": "usually yes",
@@ -112,6 +123,7 @@
       "string": "yes",
       "strings": "no",
       "code": "yes",
+      "cord": "yes",
       "bones": "no",
       "leisure": "no",
       "work": "some people use it for work",
@@ -123,7 +135,33 @@
       "summer": "yes",
       "autumn": "yes",
       "winter": "yes",
-      "all season": "yes"
+      "all season": "yes",
+      "to eat": "yes",
+      "to drink": "no",
+      "to write": "no",
+      "to read": "no",
+      "to speak": "no",
+      "to listen": "no",
+      "to sing": "no",
+      "to talk": "no",
+      "to study": "no",
+      "to get": "no",
+      "not to get": "no",
+      "to take": "no",
+      "to cut": "no",
+      "to keep": "no",
+      "to draw": "no",
+      "to clean": "no",
+      "to make": "no",
+      "to dry": "no",
+      "to wipe": "no",
+      "to see": "no",
+      "to go": "no",
+      "to look": "no",
+      "to check": "no",
+      "to move": "no",
+      "to buy": "no",
+      "to play": "no"
     }
   }
 }

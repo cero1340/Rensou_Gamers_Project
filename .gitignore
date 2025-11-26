@@ -8,3 +8,22 @@ env/
 .DS_Store
 __pycache__/
 *.pyc
+
+# --- 毎回変わる一時ファイル（ゴミ掃除） ---
+current_question.txt
+next_wav_path.txt
+thinking_state.txt
+*.log
+
+# --- バックアップフォルダ（容量の節約） ---
+backup_v1_faundation/
+
+# --- バックアップファイル（_backupとつくファイルをまとめて無視） ---
+*_backup.py
+*_backup.lua
+*_backup.json
+
+# --- 仮想環境（念のため確認） ---
+.venv/
+venv/
+__pycache__/
