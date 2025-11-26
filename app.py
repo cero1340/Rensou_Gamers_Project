@@ -7,7 +7,8 @@ import os
 # ==========================================
 SECRET_PASSWORD = "2025"
 JSON_FILE = "microwave_data.json"
-TEMPLATE_FILE = "Questions_template.json"
+# クラウド上のファイル名(大文字Q)に合わせる
+TEMPLATE_FILE = "Questions_template.json" 
 
 st.set_page_config(page_title="Rensou Training", page_icon="🎮")
 
@@ -25,7 +26,7 @@ def load_json(filename):
     return None
 
 # ==========================================
-# 3. メイン処理開始
+# 3. メイン処理開始 (初期化)
 # ==========================================
 
 st.title("🔒 Rensou Gamers Training App")
@@ -53,24 +54,31 @@ if "clue_log" not in st.session_state:
 # 4. ゲーム進行エリア
 # ==========================================
 
-# ステップ選択（あくまでカンペ用として残す）
+# ★追加：音声入力の注意書き
+st.warning("⚠️ 音声入力でやる場合は、スマホを「英語キーボード」に切り替えてからマイクボタンを押してください。")
+
+# ステップ選択（カンペ用）
 step_list = list(template.keys())
 current_step = st.selectbox("ステップを選択（カンペ用）", step_list)
 
-# カンペ表示用データ
+# 選ばれたステップの情報を取得
 step_data = template[current_step]
+question_prefix = step_data["question"]
 options_dict = step_data["options"]
 
-st.subheader("Q: What is your question?")
+# 自動で例文を作る機能
+first_option_key = list(options_dict.keys())[0] # 例: "in the house"
+example_sentence = f"例: {question_prefix} {first_option_key}?"
 
-# ★★★ ここが改良ポイント！フォーム化 ★★★
-# この `with st.form` で囲むと、PCのEnterキーで送信できるようになります
+st.subheader(f"Q: {question_prefix} ... ?")
+
+# フォーム作成 (clear_on_submit=True で送信後に消える)
 with st.form(key='game_form', clear_on_submit=True):
     
-    # 1. 音声/テキスト入力欄
+    # 1. 音声/テキスト入力欄 (placeholderに例文を入れる)
     user_input = st.text_input(
         "🎤 A. 自分で聞く (音声/テキスト)", 
-        placeholder="例: Is it made of metal?"
+        placeholder=example_sentence
     )
 
     # 2. 選択肢（カンペ）
@@ -79,16 +87,16 @@ with st.form(key='game_form', clear_on_submit=True):
         ["(選択してください)"] + list(options_dict.keys())
     )
     
-    # 送信ボタン（これを押しても動くし、PCならEnterでも動く）
+    # 送信ボタン
     submit_button = st.form_submit_button(label='送信 (Submit)')
 
 
 # ==========================================
-# 5. 判定ロジック（ボタンが押されたら動く）
+# 5. 判定ロジック
 # ==========================================
 if submit_button:
     search_keyword = None
-    matched_step = current_step # どのステップでヒットしたか
+    matched_step = current_step # どのステップでヒットしたか記録用
 
     # --- Aパターン: 自分で入力した場合 ---
     if user_input:
@@ -98,10 +106,9 @@ if submit_button:
         found = False
         for step_name, step_content in template.items():
             for label, keyword in step_content["options"].items():
-                # キーワードかラベルが含まれていたらヒット
                 if keyword in input_text or label in input_text:
                     search_keyword = keyword
-                    matched_step = step_name # ステップ名も上書き
+                    matched_step = step_name
                     found = True
                     break
             if found:
