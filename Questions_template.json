@@ -62,7 +62,8 @@
       "sheet": "sheet",
       "circle": "circle",
       "square": "square",
-      "triangle": "triangle"
+      "triangle": "triangle",
+      "rectangle": "rectangle"
     }
   },
   "6_Category": {
@@ -83,6 +84,7 @@
       "buttons": "buttons",
       "a screen": "screen",
       "a cord": "cord",
+      "a door": "door",
       "a lid": "lid",
       "wheels": "wheels",
       "legs": "legs",
