@@ -7,7 +7,7 @@ import os
 # ==========================================
 SECRET_PASSWORD = "2025"
 JSON_FILE = "microwave_data.json"
-TEMPLATE_FILE = "questions_template.json"
+TEMPLATE_FILE = "Questions_template.json"
 
 st.set_page_config(page_title="Rensou Training", page_icon="🎮")
 
