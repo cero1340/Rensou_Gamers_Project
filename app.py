@@ -7,9 +7,11 @@ import os
 # ==========================================
 SECRET_PASSWORD = "2025"
 JSON_FILE = "microwave_data.json"
+# クラウド上のファイル名(大文字Q)に合わせる
 TEMPLATE_FILE = "Questions_template.json" 
 
-st.set_page_config(page_title="Rensou Training", page_icon="🎮")
+# ブラウザのタブ名も「連想」に変更
+st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
 # ==========================================
 # 2. 関数定義
@@ -28,7 +30,8 @@ def load_json(filename):
 # 3. メイン処理開始 (初期化)
 # ==========================================
 
-st.title("🔒 Rensou Gamers Training App")
+# ★修正ポイント：タイトルを日本語化
+st.title("🔒 連想 Gamers Training App")
 password = st.text_input("メンバー限定パスワード", type="password")
 
 if password != SECRET_PASSWORD:
@@ -43,7 +46,7 @@ if not data or not template:
     st.error("データファイルが見つかりません。")
     st.stop()
 
-# ★修正ポイント：ここで答えを表示しないように変更
+# ネタバレ防止メッセージ
 st.success("Login OK! Game Start! 🎮")
 st.divider()
 
