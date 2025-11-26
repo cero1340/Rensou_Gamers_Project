@@ -1,0 +1,10 @@
+# Pythonの仮想環境を無視
+venv/
+.venv/
+env/
+
+# 環境変数や設定ファイルを無視（セキュリティ用）
+.env
+.DS_Store
+__pycache__/
+*.pyc
