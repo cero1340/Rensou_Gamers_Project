@@ -161,7 +161,8 @@
       "to check": "no",
       "to move": "no",
       "to buy": "no",
-      "to play": "no"
+      "to play": "no",
+      "to cook": "yes"
     }
   }
 }
