@@ -5,7 +5,7 @@ import os
 # ==========================================
 # 1. 設定エリア
 # ==========================================
-
+SECRET_PASSWORD = "2025"
 JSON_FILE = "microwave_data.json"
 # クラウド上のファイル名(大文字Q)に合わせる
 TEMPLATE_FILE = "Questions_template.json" 
@@ -65,26 +65,46 @@ st.divider()
 
 if "clue_log" not in st.session_state:
     st.session_state.clue_log = []
-# ★追加：前回の回答を保存するためのステート
 if "last_answer_status" not in st.session_state:
     st.session_state.last_answer_status = None
 if "last_answer_text" not in st.session_state:
     st.session_state.last_answer_text = None
 
+
 # ==========================================
 # 4. ゲーム進行エリア
 # ==========================================
 
-# ★追加：使い方ガイド（アコーディオン形式）
-with st.expander("❓ アプリの使い方 (How to Play)"):
+# ★修正：使い方ガイド（内容を最終版に更新）
+with st.expander("  アプリの使い方 (Game Guide)"):
     st.markdown("""
-        **1. ログイン:** パスワード (**2025**) を入力してアプリに入ります。
-        **2. 質問 (Input):**
-           - 上のテキスト欄をタップし、スマホの**英語キーボード**で発話/入力してください。
-           - ヒント: 入力欄の例文やリスト（B）を参考に質問を組み立ててください。
-        **3. ログ (Clue Log):** AIが「YES」と答えた質問は自動で下に記録されます。
-        **4. 判定:** 文章を入力したら「送信 (Submit)」を押すと、AIが回答を返します。
-        **5. ギブアップ:** 一番下の「答えを見る」を開くと、いつでも正解が確認できます。
+        ### 【アプリの使い方】
+        
+        **1. ステップを選択 (カンペ用)**
+        
+        * 質問したいカテゴリー（場所、素材、大きさなど）を選びます。
+        * 選んだカテゴリーで使用するワードが **「Q」** に表示されます。
+        
+        **2. 質問する**
+        
+        * **A. 自分で聞く (音声/テキスト):** 上の入力欄をタップし、キーボードでテキストを打つか、音声入力で質問を入力してください。
+        * **送信 (Submit):** 文章を入力したら、必ず下の **「送信 (Submit)」** ボタンを押してください。
+        
+        **3. リストから選ぶ (ヒント活用)**
+        
+        * ステップで選んだカテゴリで質問する内容がリストアップされています。
+        * 質問に迷ったらリスト（B）をタップしてフレーズを確認しましょう。
+        
+        **4. Clue Log (わかったことメモ) を活用**
+        
+        * AIが **YES系の回答** をした質問は、自動で画面下に記録されていきます。
+        * このメモをGo over（振り返り）しながら答えを当てていきましょう。
+        
+        ---
+        ### 【最後に】
+        このアプリを続けていけば必ず**「連想型スピーキング能力」**が身に付きます。
+        慣れてきたら、ぜひとも家族や友人と英語で連想ゲームをやって見てください。
+        連想Gamersの一員として「本物」を目指しましょう。
         """)
 
 # 音声入力の注意書き
@@ -105,7 +125,7 @@ example_sentence = f"例: {question_prefix} {first_option_key}?"
 
 st.subheader(f"Q: {question_prefix} ... ?")
 
-# ★修正ポイント：前回の回答結果を質問のすぐ下に表示
+# ★修正：前回の回答結果を質問のすぐ下に表示
 if st.session_state.last_answer_text:
     if st.session_state.last_answer_status == 'success':
         st.success(st.session_state.last_answer_text)
@@ -157,14 +177,13 @@ if submit_button:
                 break
         
         if not search_keyword:
-            # 修正：直接表示せず、ステートに保存
             st.session_state.last_answer_status = 'warning'
             st.session_state.last_answer_text = "🤔 うまく聞き取れませんでした。別の言い方を試してみて！"
 
     # --- Bパターン: リストから選んだ場合 ---
     elif selected_option_label != "(選択してください)":
         search_keyword = options_dict[selected_option_label]
-        
+
     # --- 結果表示（ステートに保存） ---
     if search_keyword:
         # ルール検索
@@ -177,7 +196,7 @@ if submit_button:
             display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
             
             if "YES" in display_answer or "CORRECT" in display_answer:
-                # 修正：直接表示せず、ステートに保存
+                # ステートに保存
                 st.session_state.last_answer_status = 'success'
                 st.session_state.last_answer_text = f"🤖 AI: **{display_answer}**"
                 st.balloons()
@@ -187,11 +206,11 @@ if submit_button:
                 if log_entry not in st.session_state.clue_log:
                     st.session_state.clue_log.append(log_entry)
             else:
-                # 修正：直接表示せず、ステートに保存
+                # ステートに保存
                 st.session_state.last_answer_status = 'error'
                 st.session_state.last_answer_text = f"🤖 AI: **{display_answer}**"
         else:
-            # 修正：直接表示せず、ステートに保存
+            # ステートに保存
             st.session_state.last_answer_status = 'warning'
             st.session_state.last_answer_text = f"🤔 データなし: {search_keyword}"
 
