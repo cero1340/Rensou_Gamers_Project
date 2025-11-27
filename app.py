@@ -5,7 +5,7 @@ import os
 # ==========================================
 # 1. 設定エリア
 # ==========================================
-SECRET_PASSWORD = "2025"
+
 JSON_FILE = "microwave_data.json"
 # クラウド上のファイル名(大文字Q)に合わせる
 TEMPLATE_FILE = "Questions_template.json" 
@@ -47,7 +47,7 @@ def load_json(filename):
 st.title("🔒 連想 Gamers Training App")
 password = st.text_input("メンバー限定パスワード", type="password")
 
-if password != SECRET_PASSWORD:
+if password != st.secrets["SECRET_PASSWORD"]:
     st.info("パスワードを入力してください。(テスト用: 2025)")
     st.stop()
 
