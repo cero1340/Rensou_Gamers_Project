@@ -106,7 +106,7 @@
       "sheet": "no",
       "box": "yes"
     },
-    "category_misc": {
+    "category_power": {
       "battery": "no",
       "バッテリ": "no",
       "electricity": "yes",
@@ -115,7 +115,9 @@
       "gas": "no",
       "water": "no",
       "fire": "no",
-      "ink": "no", 
+      "ink": "no"
+    },
+    "category_features": {
       "numbers": "usually yes",
       "letters": "usually yes",
       "hole": "yes",
@@ -134,19 +136,21 @@
       "screens": "no",
       "hands": "no",
       "legs": "usually yes",
-      "ボディーパーツを聞いた方がいい": "no",
+      "ボディパーツを聞いた方かいい": "no",
       "arms": "no",
       "neck": "no",
       "head": "no",
-      "string": "yes",
+      "string": "no",
       "strings": "no",
       "code": "yes",
       "cord": "yes",
-      "bones": "no",
+      "bones": "no" 
+    },
+    "category_usage": {
       "leisure": "no",
       "work": "some people use it for work",
       "life": "yes",
-      "with your hand": "yes",
+      "with your hand": "yes",     
       "with your both hands": "yes",
       "every day": "depends",
       "spring": "yes",
