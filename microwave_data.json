@@ -37,11 +37,15 @@
       "bed room": "no",
       "closet": "no",
       "outside": "no",
+      "sky": "no",
+      "school": "no",
+      "office": "usually yes",
       "convenience": "usually yes",
       "コンビニ": "usually yes",
       "ひゃくえん": "no",
       "百円": "no",
       "100円": "no",
+      "100": "no",
       "electronics store": "yes",
       "電気屋": "yes",
       "yodobashi camera": "yes",
@@ -57,7 +61,10 @@
       "cloth": "no",
       "wood": "no",
       "leather": "no",
-      "glass": "部分的にはイエス"
+      "glass": "部分的にはイエス",
+      "grass": "部分的にはイエス",
+      "rubber": "no",
+      "ceramic": "no"
     },
     "category_size": {
       "bigger than your hand": "yes",
@@ -83,6 +90,7 @@
       "blue": "no",
       "yellow": "no",
       "黄色ですか": "no",
+      "coloful": "no",
       "never mind": "yes"
     },
     "category_shape": {
@@ -94,6 +102,7 @@
       "circle": "no",
       "サークルみたいな感じですか": "no",
       "stick": "no",
+      "sheet": "no",
       "box": "yes"
     },
     "category_misc": {
@@ -102,7 +111,10 @@
       "electricity": "yes",
       "electri": "yes",
       "電気を": "yes",
-      "gas": "no", 
+      "gas": "no",
+      "water": "no",
+      "fire": "no",
+      "ink": "no", 
       "numbers": "usually yes",
       "letters": "usually yes",
       "hole": "yes",
@@ -112,6 +124,11 @@
       "buttons": "usually yes",
       "door": "yes",
       "doors": "no",
+      "lid": "no",
+      "wheel": "no",
+      "wheels": "no",
+      "wing": "no",
+      "wings": "no",
       "screen": "usually yes",
       "screens": "no",
       "hands": "no",
@@ -162,7 +179,8 @@
       "to move": "no",
       "to buy": "no",
       "to play": "no",
-      "to cook": "yes"
+      "to cook": "yes",
+      "to relax": "no"
     }
   }
 }
