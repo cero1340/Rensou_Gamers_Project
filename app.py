@@ -65,10 +65,27 @@ st.divider()
 
 if "clue_log" not in st.session_state:
     st.session_state.clue_log = []
+# ★追加：前回の回答を保存するためのステート
+if "last_answer_status" not in st.session_state:
+    st.session_state.last_answer_status = None
+if "last_answer_text" not in st.session_state:
+    st.session_state.last_answer_text = None
 
 # ==========================================
 # 4. ゲーム進行エリア
 # ==========================================
+
+# ★追加：使い方ガイド（アコーディオン形式）
+with st.expander("❓ アプリの使い方 (How to Play)"):
+    st.markdown("""
+        **1. ログイン:** パスワード (**2025**) を入力してアプリに入ります。
+        **2. 質問 (Input):**
+           - 上のテキスト欄をタップし、スマホの**英語キーボード**で発話/入力してください。
+           - ヒント: 入力欄の例文やリスト（B）を参考に質問を組み立ててください。
+        **3. ログ (Clue Log):** AIが「YES」と答えた質問は自動で下に記録されます。
+        **4. 判定:** 文章を入力したら「送信 (Submit)」を押すと、AIが回答を返します。
+        **5. ギブアップ:** 一番下の「答えを見る」を開くと、いつでも正解が確認できます。
+        """)
 
 # 音声入力の注意書き
 st.warning("⚠️ 音声入力でやる場合は、スマホを「英語キーボード」に切り替えてからマイクボタンを押してください。")
@@ -83,12 +100,21 @@ question_prefix = step_data["question"]
 options_dict = step_data["options"]
 
 # 自動で例文を作る機能
-first_option_key = list(options_dict.keys())[0] # 例: "in the house"
+first_option_key = list(options_dict.keys())[0] 
 example_sentence = f"例: {question_prefix} {first_option_key}?"
 
 st.subheader(f"Q: {question_prefix} ... ?")
 
-# フォーム作成 (clear_on_submit=True で送信後に消える)
+# ★修正ポイント：前回の回答結果を質問のすぐ下に表示
+if st.session_state.last_answer_text:
+    if st.session_state.last_answer_status == 'success':
+        st.success(st.session_state.last_answer_text)
+    elif st.session_state.last_answer_status == 'error':
+        st.error(st.session_state.last_answer_text)
+    elif st.session_state.last_answer_status == 'warning':
+        st.warning(st.session_state.last_answer_text)
+
+# フォーム作成 (回答の下にフォームが配置される)
 with st.form(key='game_form', clear_on_submit=True):
     
     # 1. 音声/テキスト入力欄 (placeholderに例文を入れる)
@@ -112,7 +138,7 @@ with st.form(key='game_form', clear_on_submit=True):
 # ==========================================
 if submit_button:
     search_keyword = None
-    matched_step = current_step # どのステップでヒットしたか記録用
+    matched_step = current_step
 
     # --- Aパターン: 自分で入力した場合 ---
     if user_input:
@@ -131,13 +157,15 @@ if submit_button:
                 break
         
         if not search_keyword:
-            st.warning("🤔 うまく聞き取れませんでした。別の言い方を試してみて！")
+            # 修正：直接表示せず、ステートに保存
+            st.session_state.last_answer_status = 'warning'
+            st.session_state.last_answer_text = "🤔 うまく聞き取れませんでした。別の言い方を試してみて！"
 
     # --- Bパターン: リストから選んだ場合 ---
     elif selected_option_label != "(選択してください)":
         search_keyword = options_dict[selected_option_label]
-
-    # --- 結果表示 ---
+        
+    # --- 結果表示（ステートに保存） ---
     if search_keyword:
         # ルール検索
         all_rules = {}
@@ -149,7 +177,9 @@ if submit_button:
             display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
             
             if "YES" in display_answer or "CORRECT" in display_answer:
-                st.success(f"🤖 AI: **{display_answer}**")
+                # 修正：直接表示せず、ステートに保存
+                st.session_state.last_answer_status = 'success'
+                st.session_state.last_answer_text = f"🤖 AI: **{display_answer}**"
                 st.balloons()
                 
                 # ログ保存
@@ -157,9 +187,13 @@ if submit_button:
                 if log_entry not in st.session_state.clue_log:
                     st.session_state.clue_log.append(log_entry)
             else:
-                st.error(f"🤖 AI: **{display_answer}**")
+                # 修正：直接表示せず、ステートに保存
+                st.session_state.last_answer_status = 'error'
+                st.session_state.last_answer_text = f"🤖 AI: **{display_answer}**"
         else:
-            st.warning(f"🤔 データなし: {search_keyword}")
+            # 修正：直接表示せず、ステートに保存
+            st.session_state.last_answer_status = 'warning'
+            st.session_state.last_answer_text = f"🤔 データなし: {search_keyword}"
 
 # ==========================================
 # 6. 情報表示エリア
