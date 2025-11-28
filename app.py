@@ -11,7 +11,7 @@ TEMPLATE_FILE = "Questions_template.json"
 
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
-# フォント設定
+# フォント設定（筆文字）
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
@@ -42,6 +42,29 @@ password = st.text_input("Password", type="password")
 if password != st.secrets.get("SECRET_PASSWORD", "2025"):
     st.stop()
 
+# ★ 使い方ガイド (指定のテキストを適用) ★
+with st.expander("📖 遊び方 / How to Play (クリックで開く)"):
+    st.markdown("""
+    **このアプリは、AI相手に英語で質問をして「正解のアイテム」を当てるゲームです。**
+    
+    1. **カテゴリを選ぶ**
+       - 上のメニューから「場所」や「素材」などを選びます。
+       - すると `Q: ...` の横に、質問の定型文（ヒント）が表示されます。
+       
+    2. **質問を入力する (2つの方法)**
+       - 🎤 **A. 自分で聞く :** - マイク入力などで、自分で英文を作って質問してみましょう。
+         - 例: `Is it made of metal?`
+       - 📝 **B. リストから選ぶ :** - 思いつかない時は、リストからキーワードを選んで質問できます。
+         【注意点】必ず「英語キーボード」にして下さい。
+
+    3. **送信 (Submit)**
+       - ボタンを押すとAIが答えます。
+       - **Yes** なら緑色🟢、**No** なら赤色🔴 で履歴に残ります。
+       
+    ---
+    🗣️ **Point:** 声に出して質問する練習をしていけば、必ず「連想型スピーキング」が身に付きます！まずは「初級編」から初めて、慣れてきたら「上級編」にチャレンジして下さい！
+    """)
+
 data = load_json(JSON_FILE)
 template = load_json(TEMPLATE_FILE)
 
@@ -54,9 +77,9 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = [] 
 
 # ==========================================
-# 4. チャット履歴の表示 (ここを上に配置)
+# 4. チャット履歴の表示 (画面上部)
 # ==========================================
-# LINEのように、古い順(上) -> 新しい順(下) に表示
+# 古い順(上) -> 新しい順(下) に表示
 for chat in st.session_state.chat_history:
     if chat["role"] == "user":
         with st.chat_message("user", avatar="😊"):
@@ -70,18 +93,16 @@ for chat in st.session_state.chat_history:
             else:
                 st.warning(chat["content"])
 
-st.divider() # 履歴と入力欄の区切り線
+st.divider()
 
 # ==========================================
-# 5. 入力エリア (ここを下に配置)
+# 5. 入力エリア (画面下部)
 # ==========================================
 
-# --- カテゴリ選択 (プルダウン) ---
+# --- カテゴリ選択 ---
 step_list = list(template.keys())
-# カテゴリ名はJSONのキーそのまま(日本語)を使用
-current_step_label = st.selectbox("Category Select", step_list)
+current_step_label = st.selectbox("カテゴリー選択", step_list) # ★修正済
 
-# 選ばれたカテゴリのデータ
 step_data = template[current_step_label]
 question_prefix = step_data["question"]
 options_dict = step_data["options"]
@@ -92,22 +113,21 @@ st.markdown(f"### Q: {question_prefix} ... ?")
 # --- 入力フォーム ---
 with st.form(key='game_form', clear_on_submit=True):
     
-    # 1. 自分で入力 (音声/テキスト)
+    # 1. 自分で入力
     user_input = st.text_input(
-        "🎤 Voice / Text Input", 
+        "Voice/Text: 入力する",   # ★修正済
         placeholder=f"Ex: {question_prefix} house?"
     )
 
-    # 2. リストから選ぶ (英語リスト)
-    # 選択肢ラベル(英語)をリスト化
+    # 2. リストから選ぶ (リストの中身は英語)
     option_labels = ["(Select from list)"] + list(options_dict.keys())
-    selected_option_label = st.selectbox("📝 Hint List", option_labels)
+    selected_option_label = st.selectbox("Hint List: 選択する", option_labels) # ★修正済
     
     # 送信ボタン
-    submit_button = st.form_submit_button(label='Submit (送信)')
+    submit_button = st.form_submit_button(label='送信する') # ★修正済
 
 # ==========================================
-# 6. 判定ロジック (送信後の処理)
+# 6. 判定ロジック
 # ==========================================
 if submit_button:
     search_keyword = None
@@ -122,7 +142,6 @@ if submit_button:
         found = False
         for s_content in template.values():
             for label, val_obj in s_content["options"].items():
-                # label(英語) または keyword で検索
                 kw = val_obj["keyword"]
                 if kw in input_text or label.lower() in input_text:
                     search_keyword = kw
@@ -131,10 +150,10 @@ if submit_button:
             if found: break
         
         if not search_keyword:
-            # マッチしなくても履歴に残す
+            # マッチしなくても履歴には残す
             st.session_state.chat_history.append({"role": "user", "content": user_input})
             st.session_state.chat_history.append({"role": "assistant", "content": "🤔 Sorry, I didn't catch that.", "status": "warning"})
-            st.rerun() # 即再描画
+            st.rerun()
 
     # B. リストから選んだ場合
     elif selected_option_label != "(Select from list)":
@@ -144,21 +163,20 @@ if submit_button:
 
     # --- 判定処理 ---
     if search_keyword:
-        # ユーザー発言を履歴へ
         st.session_state.chat_history.append({
             "role": "user", "content": display_question
         })
 
-        # 回答検索
         all_rules = {}
         for cat in data["rules"].values():
             all_rules.update(cat)
         
         if search_keyword in all_rules:
             answer_key = all_rules[search_keyword]
-            # .wav拡張子を削除して大文字に
+            # .wav拡張子を削除して大文字に整形
             display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
             
+            # ステータス判定
             status = "success" if ("YES" in display_answer or "CORRECT" in display_answer) else "error"
             
             st.session_state.chat_history.append({
@@ -173,4 +191,4 @@ if submit_button:
                 "status": "warning"
             })
         
-        st.rerun() # 画面を更新して最新のチャットを表示
+        st.rerun()
