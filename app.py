@@ -11,7 +11,7 @@ TEMPLATE_FILE = "Questions_template.json"
 
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
-# フォント設定（筆文字）
+# フォント設定
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
@@ -42,7 +42,7 @@ password = st.text_input("Password", type="password")
 if password != st.secrets.get("SECRET_PASSWORD", "2025"):
     st.stop()
 
-# ★ 使い方ガイド (指定のテキストを適用) ★
+# ★ 使い方ガイド (改行修正版) ★
 with st.expander("📖 遊び方 / How to Play (クリックで開く)"):
     st.markdown("""
     **このアプリは、AI相手に英語で質問をして「正解のアイテム」を当てるゲームです。**
@@ -55,6 +55,7 @@ with st.expander("📖 遊び方 / How to Play (クリックで開く)"):
        - 🎤 **A. 自分で聞く :** - マイク入力などで、自分で英文を作って質問してみましょう。
          - 例: `Is it made of metal?`
        - 📝 **B. リストから選ぶ :** - 思いつかない時は、リストからキーワードを選んで質問できます。
+         
          【注意点】必ず「英語キーボード」にして下さい。
 
     3. **送信 (Submit)**
@@ -79,7 +80,6 @@ if "chat_history" not in st.session_state:
 # ==========================================
 # 4. チャット履歴の表示 (画面上部)
 # ==========================================
-# 古い順(上) -> 新しい順(下) に表示
 for chat in st.session_state.chat_history:
     if chat["role"] == "user":
         with st.chat_message("user", avatar="😊"):
@@ -101,7 +101,7 @@ st.divider()
 
 # --- カテゴリ選択 ---
 step_list = list(template.keys())
-current_step_label = st.selectbox("カテゴリー選択", step_list) # ★修正済
+current_step_label = st.selectbox("カテゴリー選択", step_list)
 
 step_data = template[current_step_label]
 question_prefix = step_data["question"]
@@ -115,16 +115,16 @@ with st.form(key='game_form', clear_on_submit=True):
     
     # 1. 自分で入力
     user_input = st.text_input(
-        "Voice/Text: 入力する",   # ★修正済
+        "Voice/Text: 入力する",
         placeholder=f"Ex: {question_prefix} house?"
     )
 
-    # 2. リストから選ぶ (リストの中身は英語)
+    # 2. リストから選ぶ
     option_labels = ["(Select from list)"] + list(options_dict.keys())
-    selected_option_label = st.selectbox("Hint List: 選択する", option_labels) # ★修正済
+    selected_option_label = st.selectbox("Hint List: 選択する", option_labels)
     
     # 送信ボタン
-    submit_button = st.form_submit_button(label='送信する') # ★修正済
+    submit_button = st.form_submit_button(label='送信する')
 
 # ==========================================
 # 6. 判定ロジック
@@ -138,7 +138,6 @@ if submit_button:
         input_text = user_input.lower()
         display_question = user_input
         
-        # 全カテゴリ検索
         found = False
         for s_content in template.values():
             for label, val_obj in s_content["options"].items():
@@ -150,7 +149,6 @@ if submit_button:
             if found: break
         
         if not search_keyword:
-            # マッチしなくても履歴には残す
             st.session_state.chat_history.append({"role": "user", "content": user_input})
             st.session_state.chat_history.append({"role": "assistant", "content": "🤔 Sorry, I didn't catch that.", "status": "warning"})
             st.rerun()
@@ -173,10 +171,7 @@ if submit_button:
         
         if search_keyword in all_rules:
             answer_key = all_rules[search_keyword]
-            # .wav拡張子を削除して大文字に整形
             display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
-            
-            # ステータス判定
             status = "success" if ("YES" in display_answer or "CORRECT" in display_answer) else "error"
             
             st.session_state.chat_history.append({
