@@ -7,22 +7,15 @@ import os
 # ==========================================
 SECRET_PASSWORD = "2025"
 JSON_FILE = "microwave_data.json"
-# クラウド上のファイル名(大文字Q)に合わせる
 TEMPLATE_FILE = "Questions_template.json" 
 
-# ブラウザのタブ名設定
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
-# ★デザイン変更：タイトルを筆文字（Yuji Syuku）にする設定
+# フォント設定（筆文字）
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
-
-/* タイトル(h1)を筆文字にする */
-h1 {
-    font-family: 'Yuji Syuku', serif !important;
-    font-weight: 400;
-}
+h1 { font-family: 'Yuji Syuku', serif !important; font-weight: 400; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -40,18 +33,15 @@ def load_json(filename):
     return None
 
 # ==========================================
-# 3. メイン処理開始 (初期化)
+# 3. 初期化処理
 # ==========================================
-
-# タイトル（筆文字になります）
 st.title("🔒 連想 Gamers Training App")
 password = st.text_input("メンバー限定パスワード", type="password")
 
-if password != st.secrets["SECRET_PASSWORD"]:
+if password != st.secrets.get("SECRET_PASSWORD", "2025"):
     st.info("パスワードを入力してください。(テスト用: 2025)")
     st.stop()
 
-# データ読み込み
 data = load_json(JSON_FILE)
 template = load_json(TEMPLATE_FILE)
 
@@ -59,134 +49,94 @@ if not data or not template:
     st.error("データファイルが見つかりません。")
     st.stop()
 
-# ネタバレ防止メッセージ
-st.success("Login OK! Game Start! 🎮")
-st.divider()
-
-if "clue_log" not in st.session_state:
-    st.session_state.clue_log = []
-if "last_answer_status" not in st.session_state:
-    st.session_state.last_answer_status = None
-if "last_answer_text" not in st.session_state:
-    st.session_state.last_answer_text = None
-
+# セッションステート初期化（チャットログ用）
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [] 
 
 # ==========================================
 # 4. ゲーム進行エリア
 # ==========================================
 
-# ★修正：使い方ガイド（内容を最終版に更新）
-with st.expander("  アプリの使い方 (Game Guide)"):
-    st.markdown("""
-        ### 【アプリの使い方】
-        
-        **1. ステップを選択 (カンペ用)**
-        
-        * 質問したいカテゴリー（場所、素材、大きさなど）を選びます。
-        * 選んだカテゴリーで使用するワードが **「Q」** に表示されます。
-        
-        **2. 質問する**
-        
-        * **A. 自分で聞く (音声/テキスト):** 上の入力欄をタップし、キーボードでテキストを打つか、音声入力で質問を入力してください。
-        * **送信 (Submit):** 文章を入力したら、必ず下の **「送信 (Submit)」** ボタンを押してください。
-        
-        **3. リストから選ぶ (ヒント活用)**
-        
-        * ステップで選んだカテゴリで質問する内容がリストアップされています。
-        * 質問に迷ったらリスト（B）をタップしてフレーズを確認しましょう。
-        
-        **4. Clue Log (わかったことメモ) を活用**
-        
-        * AIが **YES系の回答** をした質問は、自動で画面下に記録されていきます。
-        * このメモをGo over（振り返り）しながら答えを当てていきましょう。
-        
-        ---
-        ### 【最後に】
-        このアプリを続けていけば必ず**「連想型スピーキング能力」**が身に付きます。
-        慣れてきたら、ぜひとも家族や友人と英語で連想ゲームをやって見てください。
-        連想Gamersの一員として「本物」を目指しましょう。
-        """)
-
-# 音声入力の注意書き
-st.warning("⚠️ 音声入力でやる場合は、スマホを「英語キーボード」に切り替えてからマイクボタンを押してください。")
-
-# ステップ選択（カンペ用）
+# --- カテゴリ選択エリア ---
+# 日本語のキー（"1_場所"など）をリスト化
 step_list = list(template.keys())
-current_step = st.selectbox("ステップを選択（カンペ用）", step_list)
+current_step_label = st.selectbox("カテゴリを選択 (Step)", step_list)
 
-# 選ばれたステップの情報を取得
-step_data = template[current_step]
-question_prefix = step_data["question"]
-options_dict = step_data["options"]
+# 選ばれたカテゴリのデータ取得
+step_data = template[current_step_label]
+question_prefix = step_data["question"] # "Can you find it..."
+options_dict = step_data["options"]     # 選択肢リスト
 
-# 自動で例文を作る機能
-first_option_key = list(options_dict.keys())[0] 
-example_sentence = f"例: {question_prefix} {first_option_key}?"
-
+# ★ここが重要：Qの横にキーフレーズを表示
 st.subheader(f"Q: {question_prefix} ... ?")
 
-# ★修正：前回の回答結果を質問のすぐ下に表示
-if st.session_state.last_answer_text:
-    if st.session_state.last_answer_status == 'success':
-        st.success(st.session_state.last_answer_text)
-    elif st.session_state.last_answer_status == 'error':
-        st.error(st.session_state.last_answer_text)
-    elif st.session_state.last_answer_status == 'warning':
-        st.warning(st.session_state.last_answer_text)
-
-# フォーム作成 (回答の下にフォームが配置される)
+# --- 入力フォーム ---
 with st.form(key='game_form', clear_on_submit=True):
     
-    # 1. 音声/テキスト入力欄 (placeholderに例文を入れる)
+    # 音声/テキスト入力
     user_input = st.text_input(
-        "🎤 A. 自分で聞く (音声/テキスト)", 
-        placeholder=example_sentence
+        "🎤 A. 自分で聞く (Voice/Text)", 
+        placeholder=f"例: {question_prefix} house?"
     )
 
-    # 2. 選択肢（カンペ）
-    selected_option_label = st.selectbox(
-        "📝 B. リストから選ぶ", 
-        ["(選択してください)"] + list(options_dict.keys())
-    )
+    # リストから選ぶ (現在は全表示テスト)
+    # JSON構造変更に対応: options_dictの値は {"keyword": "...", "level": 1}
+    # 表示用には日本語キーを使う
+    option_labels = ["(リストから選択)"] + list(options_dict.keys())
+    selected_option_label = st.selectbox("📝 B. リストから選ぶ (Hint)", option_labels)
     
-    # 送信ボタン
     submit_button = st.form_submit_button(label='送信 (Submit)')
-
 
 # ==========================================
 # 5. 判定ロジック
 # ==========================================
 if submit_button:
     search_keyword = None
-    matched_step = current_step
+    display_question = ""
 
-    # --- Aパターン: 自分で入力した場合 ---
+    # A. 自分で入力
     if user_input:
         input_text = user_input.lower()
+        display_question = user_input # そのまま表示
         
-        # 全ステップのテンプレートから検索する
+        # 全カテゴリから検索
         found = False
-        for step_name, step_content in template.items():
-            for label, keyword in step_content["options"].items():
-                if keyword in input_text or label in input_text:
-                    search_keyword = keyword
-                    matched_step = step_name
+        for s_content in template.values():
+            for label, val_obj in s_content["options"].items():
+                # val_objは {"keyword": "...", "level": 1}
+                kw = val_obj["keyword"]
+                if kw in input_text or label in input_text:
+                    search_keyword = kw
                     found = True
                     break
-            if found:
-                break
+            if found: break
         
         if not search_keyword:
-            st.session_state.last_answer_status = 'warning'
-            st.session_state.last_answer_text = "🤔 うまく聞き取れませんでした。別の言い方を試してみて！"
+            # 見つからなくてもチャットには残す
+            st.session_state.chat_history.append({
+                "role": "user", "content": user_input
+            })
+            st.session_state.chat_history.append({
+                "role": "assistant", "content": "🤔 うまく聞き取れませんでした。", "status": "warning"
+            })
 
-    # --- Bパターン: リストから選んだ場合 ---
-    elif selected_option_label != "(選択してください)":
-        search_keyword = options_dict[selected_option_label]
+    # B. リストから選択
+    elif selected_option_label != "(リストから選択)":
+        # 選択肢データからキーワードを取り出す
+        val_obj = options_dict[selected_option_label]
+        search_keyword = val_obj["keyword"]
+        
+        # 質問文を組み立てて表示用に
+        display_question = f"{question_prefix} {search_keyword}?"
 
-    # --- 結果表示（ステートに保存） ---
+    # --- 回答検索とログ保存 ---
     if search_keyword:
-        # ルール検索
+        # ユーザーの質問を履歴に追加
+        st.session_state.chat_history.append({
+            "role": "user", "content": display_question
+        })
+
+        # 答えを探す
         all_rules = {}
         for cat in data["rules"].values():
             all_rules.update(cat)
@@ -195,35 +145,48 @@ if submit_button:
             answer_key = all_rules[search_keyword]
             display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
             
-            if "YES" in display_answer or "CORRECT" in display_answer:
-                # ステートに保存
-                st.session_state.last_answer_status = 'success'
-                st.session_state.last_answer_text = f"🤖 AI: **{display_answer}**"
-                st.balloons()
-                
-                # ログ保存
-                log_entry = f"{matched_step}: {search_keyword} ({display_answer})"
-                if log_entry not in st.session_state.clue_log:
-                    st.session_state.clue_log.append(log_entry)
-            else:
-                # ステートに保存
-                st.session_state.last_answer_status = 'error'
-                st.session_state.last_answer_text = f"🤖 AI: **{display_answer}**"
+            status = "success" if ("YES" in display_answer or "CORRECT" in display_answer) else "error"
+            
+            # AIの回答を履歴に追加
+            st.session_state.chat_history.append({
+                "role": "assistant", 
+                "content": f"AI: **{display_answer}**", 
+                "status": status
+            })
+            if status == "success": st.balloons()
+            
         else:
-            # ステートに保存
-            st.session_state.last_answer_status = 'warning'
-            st.session_state.last_answer_text = f"🤔 データなし: {search_keyword}"
+            st.session_state.chat_history.append({
+                "role": "assistant", 
+                "content": f"データなし: {search_keyword}", 
+                "status": "warning"
+            })
 
 # ==========================================
-# 6. 情報表示エリア
+# 6. チャット履歴表示 (ここが新しいUI)
 # ==========================================
 st.divider()
-st.write("📝 **Clue Log (わかったことメモ)**")
-if st.session_state.clue_log:
-    for log in st.session_state.clue_log:
-        st.info(log)
-else:
-    st.caption("ヒントはここに溜まります。")
+st.caption("📝 Chat History")
 
-with st.expander("答えを見る（ギブアップ）"):
-    st.write(f"正解は... **{data['item_name']} ({data['item_name_en']})** でした！")
+# 履歴が空の場合
+if not st.session_state.chat_history:
+    st.info("質問すると、ここにチャット形式で履歴が残ります。")
+
+# 履歴ループ表示（新しいものが下）
+for chat in st.session_state.chat_history:
+    
+    # ユーザーのターン
+    if chat["role"] == "user":
+        with st.chat_message("user", avatar="😊"):
+            st.write(chat["content"])
+            
+    # AIのターン
+    elif chat["role"] == "assistant":
+        with st.chat_message("assistant", avatar="🤖"):
+            # ステータスによって色を変える
+            if chat.get("status") == "success":
+                st.success(chat["content"])
+            elif chat.get("status") == "error":
+                st.error(chat["content"])
+            else:
+                st.warning(chat["content"])

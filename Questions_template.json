@@ -1,114 +1,29 @@
 {
-  "1_Location": {
+  "1_場所": {
     "question": "Can you find it...",
     "options": {
-      "in the house": "house",
-      "in the kitchen": "kitchen",
-      "in the living room": "living",
-      "in the bedroom": "bed room",
-      "in the bathroom": "bath",
-      "outside": "outside",
-      "at a convenience store": "convenience",
-      "at an electronics store": "electronics store",
-      "at a 100 yen shop": "100 yen",
-      "in a school": "school",
-      "in an office": "office"
+      "家の中にありますか？": { "keyword": "house", "level": 1 },
+      "コンビニにありますか？": { "keyword": "convenience", "level": 1 },
+      "キッチンにありますか？": { "keyword": "kitchen", "level": 2 }
     }
   },
-  "2_Material": {
+  "2_素材": {
     "question": "Is it made of...",
     "options": {
-      "metal": "metal",
-      "plastic": "plastic",
-      "wood": "wood",
-      "paper": "paper",
-      "glass": "glass",
-      "cloth": "cloth",
-      "leather": "leather",
-      "rubber": "rubber",
-      "ceramic": "ceramic"
+      "金属でできていますか？": { "keyword": "metal", "level": 1 },
+      "木でできていますか？": { "keyword": "wood", "level": 1 }
     }
   },
-  "3_Size": {
+  "3_大きさ": {
     "question": "Is it bigger than...",
     "options": {
-      "your finger": "bigger than your finger",
-      "your hand": "bigger than your hand",
-      "your head": "bigger than your head",
-      "you": "bigger than you"
+      "手より大きいですか？": { "keyword": "bigger than your hand", "level": 1 }
     }
   },
-  "4_Color": {
-    "question": "Is it...",
-    "options": {
-      "white": "white",
-      "black": "black",
-      "red": "red",
-      "blue": "blue",
-      "green": "green",
-      "yellow": "yellow",
-      "brown": "brown",
-      "silver": "silver",
-      "gold": "gold",
-      "colorful": "colorful"
-    }
-  },
-  "5_Shape": {
-    "question": "Is it like a...",
-    "options": {
-      "box": "box",
-      "ball": "ball",
-      "stick": "stick",
-      "sheet": "sheet",
-      "circle": "circle",
-      "square": "square",
-      "triangle": "triangle",
-      "rectangle": "rectangle"
-    }
-  },
-  "6_Category": {
+  "6_動力": {
     "question": "Does it use...",
     "options": {
-      "electricity": "electricity",
-      "battery": "battery",
-      "gas": "gas",
-      "water": "water",
-      "fire": "fire",
-      "ink": "ink"
-    }
-  },
-  "7_Features": {
-    "question": "Does it have...",
-    "options": {
-      "a handle": "handle",
-      "buttons": "buttons",
-      "a screen": "screen",
-      "a cord": "cord",
-      "a door": "door",
-      "a lid": "lid",
-      "wheels": "wheels",
-      "legs": "legs",
-      "numbers": "numbers",
-      "letters": "letters",
-      "a hole": "hole"
-    }
-  },
-  "8_Usage": {
-    "question": "Do you use it...",
-    "options": {
-      "for leisure": "leisure",
-      "for work": "work",
-      "for life": "life",
-      "to clean something": "to clean",
-      "to cook": "to cook",
-      "to eat": "to eat",
-      "to drink": "to drink",
-      "to write": "to write",
-      "to cut": "to cut",
-      "to play": "to play",
-      "to study": "to study",
-      "to relax": "to relax",
-      "every day": "every day"
+      "電気を使いますか？": { "keyword": "electricity", "level": 1 }
     }
   }
 }
