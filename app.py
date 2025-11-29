@@ -89,6 +89,13 @@ st.markdown("""
         border-radius: 10px;
     }
 
+    /* ★★★ 追加：下から積み上げるための魔法のCSS ★★★ */
+    /* 高さ固定コンテナの中身を「下から上」の配置順にする */
+    [data-testid="stVerticalBlockBorderWrapper"] > div > [data-testid="stVerticalBlock"] {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -184,11 +191,13 @@ elif st.session_state.page == 'game':
     st.header("💬 チャットゲーム開始！")
     
     # ==========================================
-    # 4. チャット履歴の表示 (スクロール固定枠を使用)
+    # 4. チャット履歴の表示 (積み上げ式)
     # ==========================================
-    # ★重要変更★ height=500の枠を作り、その中だけで会話をスクロールさせる
+    # height=500の枠を作成。CSSで「中身は下から順」になっている。
     with st.container(height=500):
-        for chat in st.session_state.chat_history:
+        # CSSで順序反転(column-reverse)しているので、
+        # ここでは「最新のもの」から順に書き出すと、見た目上は一番下に最新が来る
+        for chat in reversed(st.session_state.chat_history):
             if chat["role"] == "user":
                 # ユーザーの発言 (右側・緑)
                 st.markdown(f"""
@@ -220,10 +229,8 @@ elif st.session_state.page == 'game':
                 </div>
                 """, unsafe_allow_html=True)
 
-    # st.divider() # 枠の中に区切り線は不要なので削除
-
     # ==========================================
-    # 5. 入力エリア (枠の下に固定される)
+    # 5. 入力エリア (枠の下に固定)
     # ==========================================
 
     # --- カテゴリ選択 ---
@@ -257,7 +264,7 @@ elif st.session_state.page == 'game':
     # ==========================================
     if submit_button:
         with st.spinner("AIが考え中..."):
-            time.sleep(1.0) 
+            time.sleep(0.5) # テンポアップ
             
             search_keyword = None
             display_question = ""
