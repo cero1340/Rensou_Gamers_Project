@@ -162,21 +162,16 @@ elif st.session_state.page == 'game':
     st.header("💬 チャットゲーム開始！")
     
     # ==========================================
-    # 4. チャット履歴の表示 (強力な下詰めHTML版)
+    # 4. チャット履歴の表示
     # ==========================================
-    
     chat_html = '<div class="chat-scroll-area">'
     
-    # インデントによる誤認識を防ぐため、1行で記述するか、改行コードのみで連結します
     for chat in reversed(st.session_state.chat_history):
         if chat["role"] == "user":
-            # インデントを削除して記述
             chat_html += f'<div class="user-bubble">{chat["content"]}</div>'
-            
         elif chat["role"] == "assistant":
             content = chat["content"]
             status = chat.get("status")
-            
             display_text = content
             if status == "success":
                 display_text = f"🟢 {content}"
@@ -185,7 +180,6 @@ elif st.session_state.page == 'game':
             else:
                 display_text = f"🟡 {content}"
             
-            # こちらもインデントを削除
             chat_html += f'''
             <div class="bot-bubble-container">
                 <div class="bot-avatar">🤖</div>
@@ -194,21 +188,42 @@ elif st.session_state.page == 'game':
             '''
     
     chat_html += '</div>'
-    
-    # まとめて描画
     st.markdown(chat_html, unsafe_allow_html=True)
 
     # ==========================================
-    # 5. 入力エリア
+    # 5. 入力エリア (カテゴリ選択のレイアウト変更)
     # ==========================================
+    
+    # カテゴリリストの取得
     step_list = list(template.keys())
-    current_step_label = st.selectbox("カテゴリー選択", step_list)
-    step_data = template[current_step_label]
+
+    # セッションステートで現在の選択状態を管理（Q:を上に表示するため）
+    if "selected_category_key" not in st.session_state:
+        st.session_state.selected_category_key = step_list[0]
+
+    # ★レイアウト調整: テキスト → Q → フォーム の順 ★
+    st.markdown("##### カテゴリー選択")
+
+    # 現在選択されているカテゴリのデータを取得
+    current_cat = st.session_state.selected_category_key
+    step_data = template[current_cat]
     question_prefix = step_data["question"]
     options_dict = step_data["options"]
 
-    st.markdown(f"### Q: {question_prefix} ... ?")
+    # Q: ... を表示
+    st.markdown(f"**Q: {question_prefix} ... ?**")
 
+    # 選択ボックス (ラベルは隠す)
+    # keyを指定することで、変更時に st.session_state.selected_category_key が自動更新され、
+    # 再描画時に上の "Q:..." が書き換わる仕組み
+    st.selectbox(
+        "hidden_label", 
+        step_list, 
+        key="selected_category_key", 
+        label_visibility="collapsed"
+    )
+
+    # 入力フォーム
     with st.form(key='game_form', clear_on_submit=True):
         user_input = st.text_input("Voice/Text: 入力する", placeholder=f"Ex: {question_prefix} house?")
         option_labels = ["(Select from list)"] + list(options_dict.keys())
