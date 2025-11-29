@@ -28,14 +28,14 @@ st.markdown("""
         background-color: #7494c0;
     }
 
-    /* ★チャット全体を包む箱（ここが重要）★ */
+    /* ★チャット全体を包む箱（スクロールエリア）★ */
     .chat-scroll-area {
         height: 500px;            /* 高さ固定 */
         overflow-y: auto;         /* スクロール可能に */
         display: flex;            /* フレックスボックス化 */
         flex-direction: column-reverse; /* 【重要】下から順に積み上げる設定 */
         padding: 20px;
-        background-color: rgba(255, 255, 255, 0.1); /* 少し背景色をつけてエリアを明確に */
+        background-color: rgba(255, 255, 255, 0.1); 
         border-radius: 10px;
         margin-bottom: 20px;
     }
@@ -52,6 +52,7 @@ st.markdown("""
         width: fit-content;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         text-align: left;
+        line-height: 1.5;
     }
 
     /* AIの吹き出し */
@@ -73,6 +74,7 @@ st.markdown("""
         max-width: 80%;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         text-align: left;
+        line-height: 1.5;
     }
 
     /* フォーム周りの装飾 */
@@ -162,20 +164,15 @@ elif st.session_state.page == 'game':
     # ==========================================
     # 4. チャット履歴の表示 (強力な下詰めHTML版)
     # ==========================================
-    # PythonでHTML文字列を全部組み立ててから、一回で表示します。
-    # これによりCSSの flex-direction: column-reverse が確実に効きます。
     
     chat_html = '<div class="chat-scroll-area">'
     
-    # reversed()を使うことで、「新しい順」にHTMLを作成します。
-    # column-reverse環境なので、HTML上の「最初」の要素が「一番下（ライン1）」に描画されます。
+    # インデントによる誤認識を防ぐため、1行で記述するか、改行コードのみで連結します
     for chat in reversed(st.session_state.chat_history):
         if chat["role"] == "user":
-            chat_html += f"""
-            <div class="user-bubble">
-                {chat["content"]}
-            </div>
-            """
+            # インデントを削除して記述
+            chat_html += f'<div class="user-bubble">{chat["content"]}</div>'
+            
         elif chat["role"] == "assistant":
             content = chat["content"]
             status = chat.get("status")
@@ -187,15 +184,14 @@ elif st.session_state.page == 'game':
                 display_text = f"🔴 {content}"
             else:
                 display_text = f"🟡 {content}"
-                
-            chat_html += f"""
+            
+            # こちらもインデントを削除
+            chat_html += f'''
             <div class="bot-bubble-container">
                 <div class="bot-avatar">🤖</div>
-                <div class="bot-bubble">
-                    {display_text}
-                </div>
+                <div class="bot-bubble">{display_text}</div>
             </div>
-            """
+            '''
     
     chat_html += '</div>'
     
