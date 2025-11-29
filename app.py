@@ -35,8 +35,8 @@ st.markdown("""
         color: black;
         padding: 10px 15px;
         border-radius: 15px;
-        border-top-right-radius: 0; /* 右上の角を尖らせる */
-        margin: 5px 0 5px auto; /* 右寄せ */
+        border-top-right-radius: 0;
+        margin: 5px 0 5px auto;
         max-width: 80%;
         width: fit-content;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
@@ -59,7 +59,7 @@ st.markdown("""
         color: black;
         padding: 10px 15px;
         border-radius: 15px;
-        border-top-left-radius: 0; /* 左上の角を尖らせる */
+        border-top-left-radius: 0;
         max-width: 80%;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         text-align: left;
@@ -67,7 +67,7 @@ st.markdown("""
 
     /* 入力フォーム周りの背景を少し見やすく */
     [data-testid="stForm"] {
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: rgba(255, 255, 255, 0.9);
         padding: 20px;
         border-radius: 10px;
     }
@@ -81,6 +81,12 @@ st.markdown("""
     .streamlit-expanderHeader {
         background-color: white;
         border-radius: 10px 10px 0 0;
+    }
+
+    /* スクロールコンテナの背景調整 */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
     }
 
 </style>
@@ -178,10 +184,10 @@ elif st.session_state.page == 'game':
     st.header("💬 チャットゲーム開始！")
     
     # ==========================================
-    # 4. チャット履歴の表示 (LINE風 HTMLレンダリング)
+    # 4. チャット履歴の表示 (スクロール固定枠を使用)
     # ==========================================
-    chat_container = st.container()
-    with chat_container:
+    # ★重要変更★ height=500の枠を作り、その中だけで会話をスクロールさせる
+    with st.container(height=500):
         for chat in st.session_state.chat_history:
             if chat["role"] == "user":
                 # ユーザーの発言 (右側・緑)
@@ -214,10 +220,10 @@ elif st.session_state.page == 'game':
                 </div>
                 """, unsafe_allow_html=True)
 
-    st.divider()
+    # st.divider() # 枠の中に区切り線は不要なので削除
 
     # ==========================================
-    # 5. 入力エリア
+    # 5. 入力エリア (枠の下に固定される)
     # ==========================================
 
     # --- カテゴリ選択 ---
@@ -251,7 +257,7 @@ elif st.session_state.page == 'game':
     # ==========================================
     if submit_button:
         with st.spinner("AIが考え中..."):
-            time.sleep(1.5) 
+            time.sleep(1.0) 
             
             search_keyword = None
             display_question = ""
@@ -314,7 +320,7 @@ elif st.session_state.page == 'game':
                     is_positive = any(k in raw_answer for k in ["YES", "CORRECT", "PARTIAL"])
                     status = "success" if is_positive else "error"
                     
-                    # ★ 修正: HTMLタグ <b> で太字にする ★
+                    # ★太字修正済み (<b>タグ) ★
                     st.session_state.chat_history.append({
                         "role": "assistant", 
                         "content": f"AI: <b>{display_answer}</b>", 
