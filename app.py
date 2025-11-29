@@ -94,21 +94,22 @@ st.markdown("""
         border-radius: 10px 10px 0 0;
     }
 
-    /* ▼▼▼ フォントサイズ調整用クラス ▼▼▼ */
+    /* ▼▼▼ フォント調整・レイアウト修正箇所 ▼▼▼ */
     .category-label {
-        font-size: 14px;      /* 小さく控えめに */
+        font-size: 14px;
         font-weight: bold;
         color: #333;
-        margin-bottom: 0px;   /* 下の隙間を詰める */
+        margin-bottom: 10px;   /* ★修正: 行間を広げました (0px -> 10px) */
     }
     
     .question-text {
-        font-size: 24px;      /* 大きく強調！ */
+        font-size: 24px;
         font-weight: bold;
-        color: #1f2937;       /* 濃いグレーで見やすく */
-        margin-top: 5px;
+        color: #0d47a1;       /* ★修正: 濃いネイビーに変更して視認性アップ */
+        margin-top: 0px;
         margin-bottom: 15px;
-        line-height: 1.2;
+        line-height: 1.3;
+        text-shadow: 1px 1px 0px rgba(255,255,255,0.4); /* 白い縁取りを少し入れて浮き出させる */
     }
 
 </style>
@@ -216,7 +217,7 @@ elif st.session_state.page == 'game':
     if "selected_category_key" not in st.session_state:
         st.session_state.selected_category_key = step_list[0]
 
-    # ★レイアウト調整: CSSクラスでサイズ指定 ★
+    # ★カテゴリー選択ラベル（行間調整済み）★
     st.markdown('<p class="category-label">カテゴリー選択</p>', unsafe_allow_html=True)
 
     current_cat = st.session_state.selected_category_key
@@ -224,7 +225,7 @@ elif st.session_state.page == 'game':
     question_prefix = step_data["question"]
     options_dict = step_data["options"]
 
-    # Q: ... を大きく表示
+    # ★Q: ... を濃いネイビーで強調表示★
     st.markdown(f'<p class="question-text">Q: {question_prefix} ... ?</p>', unsafe_allow_html=True)
 
     # 選択ボックス (ラベルは隠す)
