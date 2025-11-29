@@ -103,13 +103,13 @@ st.markdown("""
     }
     
     .question-text {
-        font-size: 48px;      /* ★修正: 35px -> 48px に超巨大化 */
+        font-size: 48px;      /* 超巨大化 */
         font-weight: bold;
-        color: #FFFF00;       /* 鮮やかな黄色 */
+        color: #FFFF00;       /* 黄色 */
         margin-top: 5px;
         margin-bottom: 20px;
-        line-height: 1.1;     /* 文字が大きいので行間は詰め気味に */
-        text-shadow: 3px 3px 0px #333333; /* 影も少し強くして視認性UP */
+        line-height: 1.1;
+        text-shadow: 3px 3px 0px #333333;
     }
 
 </style>
@@ -130,6 +130,13 @@ def load_json(filename):
 
 def switch_to_game():
     st.session_state.page = 'game'
+
+# ★追加関数: テキストから記号を取り除く★
+def normalize_text(text):
+    """入力テキストから ... ? . などの記号を除去し、小文字化して空白除去する"""
+    if not text:
+        return ""
+    return text.replace("...", "").replace("?", "").replace(".", "").replace(",", "").strip().lower()
 
 # ==========================================
 # 3. 初期化 & データ読み込み
@@ -209,7 +216,7 @@ elif st.session_state.page == 'game':
     st.markdown(chat_html, unsafe_allow_html=True)
 
     # ==========================================
-    # 5. 入力エリア (カテゴリ選択のレイアウト変更)
+    # 5. 入力エリア
     # ==========================================
     
     step_list = list(template.keys())
@@ -224,7 +231,7 @@ elif st.session_state.page == 'game':
     question_prefix = step_data["question"]
     options_dict = step_data["options"]
 
-    # ★Q: ... を超巨大表示★
+    # Q: ... を超巨大表示
     st.markdown(f'<p class="question-text">Q: {question_prefix} ... ?</p>', unsafe_allow_html=True)
 
     # 選択ボックス (ラベルは隠す)
@@ -243,7 +250,7 @@ elif st.session_state.page == 'game':
         submit_button = st.form_submit_button(label='送信する')
 
     # ==========================================
-    # 6. 判定ロジック
+    # 6. 判定ロジック (強化版)
     # ==========================================
     if submit_button:
         with st.spinner("AIが考え中..."):
@@ -252,28 +259,45 @@ elif st.session_state.page == 'game':
             search_keyword = None
             display_question = ""
 
+            # A. 自分で入力した場合
             if user_input:
-                input_text = user_input.lower()
+                # ★修正ポイント1: 入力テキストから記号を除去してきれいにする
+                clean_input = normalize_text(user_input)
                 display_question = user_input
-                found = False
+                
+                # ★修正ポイント2: 全ての候補をリスト化し、「長い順」にソートして判定する
+                # これにより、短い単語による誤った部分一致を防ぎます。
+                all_candidates = []
                 for s_content in template.values():
                     for label, val_obj in s_content["options"].items():
-                        kw = val_obj["keyword"]
-                        if kw in input_text or label.lower() in input_text:
-                            search_keyword = kw
-                            found = True
-                            break
-                    if found: break
+                        all_candidates.append((label, val_obj["keyword"]))
+                
+                # ラベルの文字数が長い順に並べ替え
+                all_candidates.sort(key=lambda x: len(x[0]), reverse=True)
+                
+                # 検索実行
+                found = False
+                for label, kw in all_candidates:
+                    clean_label = normalize_text(label) # ラベル側も記号除去
+                    
+                    # 記号を除去した状態で比較 (例: "to cook" in "do you use it to cook")
+                    # もしくはキーワードそのものが含まれているか
+                    if clean_label in clean_input or kw in clean_input:
+                        search_keyword = kw
+                        found = True
+                        break
                 
                 if not search_keyword:
                     st.session_state.chat_history.append({"role": "user", "content": user_input})
                     st.session_state.chat_history.append({"role": "assistant", "content": "🤔 Sorry, I didn't catch that.", "status": "warning"})
                 
+            # B. リストから選んだ場合 (こちらは確実)
             elif selected_option_label != "(Select from list)":
                 val_obj = options_dict[selected_option_label]
                 search_keyword = val_obj["keyword"]
                 display_question = f"{question_prefix} {selected_option_label}?"
 
+            # --- 回答の決定 ---
             if search_keyword:
                 st.session_state.chat_history.append({"role": "user", "content": display_question})
 
