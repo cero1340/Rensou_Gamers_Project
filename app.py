@@ -314,7 +314,7 @@ elif st.session_state.page == 'game':
                     is_positive = any(k in raw_answer for k in ["YES", "CORRECT", "PARTIAL"])
                     status = "success" if is_positive else "error"
                     
-                    # ★太字修正済み (<b>タグ) ★
+                    # ★ 修正: HTMLタグ <b> で太字にする ★
                     st.session_state.chat_history.append({
                         "role": "assistant", 
                         "content": f"AI: <b>{display_answer}</b>", 
