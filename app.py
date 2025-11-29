@@ -94,6 +94,23 @@ st.markdown("""
         border-radius: 10px 10px 0 0;
     }
 
+    /* ▼▼▼ フォントサイズ調整用クラス ▼▼▼ */
+    .category-label {
+        font-size: 14px;      /* 小さく控えめに */
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0px;   /* 下の隙間を詰める */
+    }
+    
+    .question-text {
+        font-size: 24px;      /* 大きく強調！ */
+        font-weight: bold;
+        color: #1f2937;       /* 濃いグレーで見やすく */
+        margin-top: 5px;
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -194,28 +211,23 @@ elif st.session_state.page == 'game':
     # 5. 入力エリア (カテゴリ選択のレイアウト変更)
     # ==========================================
     
-    # カテゴリリストの取得
     step_list = list(template.keys())
 
-    # セッションステートで現在の選択状態を管理（Q:を上に表示するため）
     if "selected_category_key" not in st.session_state:
         st.session_state.selected_category_key = step_list[0]
 
-    # ★レイアウト調整: テキスト → Q → フォーム の順 ★
-    st.markdown("##### カテゴリー選択")
+    # ★レイアウト調整: CSSクラスでサイズ指定 ★
+    st.markdown('<p class="category-label">カテゴリー選択</p>', unsafe_allow_html=True)
 
-    # 現在選択されているカテゴリのデータを取得
     current_cat = st.session_state.selected_category_key
     step_data = template[current_cat]
     question_prefix = step_data["question"]
     options_dict = step_data["options"]
 
-    # Q: ... を表示
-    st.markdown(f"**Q: {question_prefix} ... ?**")
+    # Q: ... を大きく表示
+    st.markdown(f'<p class="question-text">Q: {question_prefix} ... ?</p>', unsafe_allow_html=True)
 
     # 選択ボックス (ラベルは隠す)
-    # keyを指定することで、変更時に st.session_state.selected_category_key が自動更新され、
-    # 再描画時に上の "Q:..." が書き換わる仕組み
     st.selectbox(
         "hidden_label", 
         step_list, 
