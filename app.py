@@ -302,9 +302,9 @@ elif st.session_state.page == 'game':
                         "NO": "ノー！",
                         "PARTIAL_YES": "部分的にはイエス！",
                         "CORRECT": "正解！",
-                        "USUALLY_YES": "たいていそうです",
-                        "DEPENS": "時と場合によります",
-                        "SOME_PEOPLE_USE": "使う人もいます"
+                        "USUALLY_YES": "通常はイエスかな！",
+                        "DEPENS": "状況によるよ！",
+                        "SOME_PEOPLE_USE": "使う人もいるよ！"
                     }
                     
                     # マップにあれば日本語に、なければそのまま表示
