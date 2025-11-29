@@ -12,39 +12,49 @@ TEMPLATE_FILE = "Questions_template.json"
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
 # ==========================================
-# ★ LINE風デザインCSS ＋ 下から積み上げ設定 ★
+# ★ LINE風デザインCSS ＋ 下詰め強制レイアウト ★
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
     
-    /* 全体のフォント設定 */
     html, body, [class*="css"] {
         font-family: 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Arial, sans-serif;
     }
     h1 { font-family: 'Yuji Syuku', serif !important; font-weight: 400; }
-
+    
     /* LINE風 背景色 */
     .stApp {
         background-color: #7494c0;
     }
 
-    /* ユーザーの吹き出し (右側・緑色) */
+    /* ★チャット全体を包む箱（ここが重要）★ */
+    .chat-scroll-area {
+        height: 500px;            /* 高さ固定 */
+        overflow-y: auto;         /* スクロール可能に */
+        display: flex;            /* フレックスボックス化 */
+        flex-direction: column-reverse; /* 【重要】下から順に積み上げる設定 */
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.1); /* 少し背景色をつけてエリアを明確に */
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* ユーザーの吹き出し */
     .user-bubble {
         background-color: #98e165;
         color: black;
         padding: 10px 15px;
         border-radius: 15px;
         border-top-right-radius: 0;
-        margin: 5px 0 5px auto;
+        margin: 5px 0 5px auto; /* 右寄せ */
         max-width: 80%;
         width: fit-content;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         text-align: left;
-        display: block;
     }
 
-    /* AIの吹き出し (左側・白色) */
+    /* AIの吹き出し */
     .bot-bubble-container {
         display: flex;
         align-items: flex-start;
@@ -65,14 +75,13 @@ st.markdown("""
         text-align: left;
     }
 
-    /* 入力フォーム周りの装飾 */
+    /* フォーム周りの装飾 */
     [data-testid="stForm"] {
         background-color: rgba(255, 255, 255, 0.9);
         padding: 20px;
         border-radius: 10px;
     }
     
-    /* Expanderの装飾 */
     .streamlit-expanderContent {
         background-color: white;
         border-radius: 0 0 10px 10px;
@@ -83,19 +92,6 @@ st.markdown("""
         border-radius: 10px 10px 0 0;
     }
 
-    /* スクロール枠の背景 */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-    }
-
-    /* ★★★ ここが魔法のコード：下から積み上げ式にする設定 ★★★ */
-    /* 枠の中身の重力を「下」にするイメージ */
-    [data-testid="stVerticalBlockBorderWrapper"] > div > [data-testid="stVerticalBlock"] {
-        display: flex;
-        flex-direction: column-reverse;
-    }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -103,7 +99,6 @@ st.markdown("""
 # 2. 関数定義
 # ==========================================
 def load_json(filename):
-    """JSONファイルを読み込む関数"""
     if os.path.exists(filename):
         try:
             with open(filename, "r", encoding="utf-8") as f:
@@ -117,7 +112,7 @@ def switch_to_game():
     st.session_state.page = 'game'
 
 # ==========================================
-# 3. 初期化 & データ読み込み & 認証
+# 3. 初期化 & データ読み込み
 # ==========================================
 
 if 'page' not in st.session_state:
@@ -149,76 +144,67 @@ if "chat_history" not in st.session_state:
 # ==========================================
 
 if st.session_state.page == 'home':
-    # --- ホーム画面 ---
     st.header("トレーニングを開始します")
-    
     with st.expander("📖 遊び方 / How to Play", expanded=True):
         st.markdown("""
-        **このアプリは、AI相手に英語で質問をして「正解のアイテム」を当てるゲームです。**
+        **最新のメッセージが常に一番下（青いライン）に表示されます！**
         
         1. **カテゴリを選ぶ**
-        2. **質問を入力する (声 or テキスト)**
-        3. **AIが回答** (Yes/No)
-        
-        **Latest Message is Always at the Bottom!**
-        新しいメッセージは常に一番下（入力欄のすぐ上）に表示され、古いものは上に押し上げられます。
+        2. **質問を入力**
+        3. **送信** → チャットの一番下に表示され、古いものは上に移動します。
         """)
-
     st.markdown("---")
     st.button("🚀 ゲーム開始", on_click=switch_to_game, type="primary")
 
 elif st.session_state.page == 'game':
-    # --- ゲーム画面 ---
     st.header("💬 チャットゲーム開始！")
     
     # ==========================================
-    # 4. チャット履歴の表示 (ウィンドウ形式・下から積み上げ)
+    # 4. チャット履歴の表示 (強力な下詰めHTML版)
     # ==========================================
-    # height=550の枠を作り、CSSで「下から積み上げ」を適用済み
-    # 中身が少ないときは一番下(Line 1)に表示され、増えると上に伸びていきます
-    with st.container(height=550):
-        
-        # CSSで順序を反転(column-reverse)させているため、
-        # プログラム側では「新しい順」に描画すると、見た目上で
-        # [一番下] = 最新
-        # [その上] = 1つ前
-        # となります。
-        for chat in reversed(st.session_state.chat_history):
-            if chat["role"] == "user":
-                # ユーザー (右・緑)
-                st.markdown(f"""
-                <div class="user-bubble">
-                    {chat["content"]}
-                </div>
-                """, unsafe_allow_html=True)
+    # PythonでHTML文字列を全部組み立ててから、一回で表示します。
+    # これによりCSSの flex-direction: column-reverse が確実に効きます。
+    
+    chat_html = '<div class="chat-scroll-area">'
+    
+    # reversed()を使うことで、「新しい順」にHTMLを作成します。
+    # column-reverse環境なので、HTML上の「最初」の要素が「一番下（ライン1）」に描画されます。
+    for chat in reversed(st.session_state.chat_history):
+        if chat["role"] == "user":
+            chat_html += f"""
+            <div class="user-bubble">
+                {chat["content"]}
+            </div>
+            """
+        elif chat["role"] == "assistant":
+            content = chat["content"]
+            status = chat.get("status")
+            
+            display_text = content
+            if status == "success":
+                display_text = f"🟢 {content}"
+            elif status == "error":
+                display_text = f"🔴 {content}"
+            else:
+                display_text = f"🟡 {content}"
                 
-            elif chat["role"] == "assistant":
-                # AI (左・白)
-                content = chat["content"]
-                status = chat.get("status")
-                
-                display_text = content
-                if status == "success":
-                    display_text = f"🟢 {content}"
-                elif status == "error":
-                    display_text = f"🔴 {content}"
-                else:
-                    display_text = f"🟡 {content}"
-
-                st.markdown(f"""
-                <div class="bot-bubble-container">
-                    <div class="bot-avatar">🤖</div>
-                    <div class="bot-bubble">
-                        {display_text}
-                    </div>
+            chat_html += f"""
+            <div class="bot-bubble-container">
+                <div class="bot-avatar">🤖</div>
+                <div class="bot-bubble">
+                    {display_text}
                 </div>
-                """, unsafe_allow_html=True)
+            </div>
+            """
+    
+    chat_html += '</div>'
+    
+    # まとめて描画
+    st.markdown(chat_html, unsafe_allow_html=True)
 
     # ==========================================
-    # 5. 入力エリア (ウィンドウの下に配置・固定はしない)
+    # 5. 入力エリア
     # ==========================================
-    # 上のチャット枠の高さが固定なので、この入力欄の位置は動きません
-
     step_list = list(template.keys())
     current_step_label = st.selectbox("カテゴリー選択", step_list)
     step_data = template[current_step_label]
@@ -228,15 +214,9 @@ elif st.session_state.page == 'game':
     st.markdown(f"### Q: {question_prefix} ... ?")
 
     with st.form(key='game_form', clear_on_submit=True):
-        
-        user_input = st.text_input(
-            "Voice/Text: 入力する",
-            placeholder=f"Ex: {question_prefix} house?"
-        )
-
+        user_input = st.text_input("Voice/Text: 入力する", placeholder=f"Ex: {question_prefix} house?")
         option_labels = ["(Select from list)"] + list(options_dict.keys())
         selected_option_label = st.selectbox("Hint List: 選択する", option_labels)
-        
         submit_button = st.form_submit_button(label='送信する')
 
     # ==========================================
