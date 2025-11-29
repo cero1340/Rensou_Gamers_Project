@@ -11,11 +11,78 @@ TEMPLATE_FILE = "Questions_template.json"
 
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
-# フォント設定 (既存)
+# ==========================================
+# ★ LINE風デザインCSSの適用 ★
+# ==========================================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
-h1 { font-family: 'Yuji Syuku', serif !important; font-weight: 400; }
+    @import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
+    
+    /* 全体のフォント設定 */
+    html, body, [class*="css"] {
+        font-family: 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Arial, sans-serif;
+    }
+    h1 { font-family: 'Yuji Syuku', serif !important; font-weight: 400; }
+
+    /* LINE風 背景色 (ブルーグレー) */
+    .stApp {
+        background-color: #7494c0;
+    }
+
+    /* ユーザーの吹き出し (右側・緑色) */
+    .user-bubble {
+        background-color: #98e165;
+        color: black;
+        padding: 10px 15px;
+        border-radius: 15px;
+        border-top-right-radius: 0; /* 右上の角を尖らせる */
+        margin: 5px 0 5px auto; /* 右寄せ */
+        max-width: 80%;
+        width: fit-content;
+        box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        text-align: left;
+        display: block;
+    }
+
+    /* AIの吹き出し (左側・白色) */
+    .bot-bubble-container {
+        display: flex;
+        align-items: flex-start;
+        margin: 5px 0;
+    }
+    .bot-avatar {
+        font-size: 24px;
+        margin-right: 8px;
+    }
+    .bot-bubble {
+        background-color: #ffffff;
+        color: black;
+        padding: 10px 15px;
+        border-radius: 15px;
+        border-top-left-radius: 0; /* 左上の角を尖らせる */
+        max-width: 80%;
+        box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        text-align: left;
+    }
+
+    /* 入力フォーム周りの背景を少し見やすく */
+    [data-testid="stForm"] {
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    /* Expanderの背景を白くして読みやすく */
+    .streamlit-expanderContent {
+        background-color: white;
+        border-radius: 0 0 10px 10px;
+        padding: 10px;
+    }
+    .streamlit-expanderHeader {
+        background-color: white;
+        border-radius: 10px 10px 0 0;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -29,12 +96,10 @@ def load_json(filename):
             with open(filename, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
-            # st.errorは画面遷移ロジック外で使う
             print(f"Error loading {filename}: {e}")
             return None
     return None
 
-# ページを 'game' 状態に切り替える関数
 def switch_to_game():
     """ホーム画面からゲーム画面へ状態を切り替えるコールバック関数"""
     st.session_state.page = 'game'
@@ -43,24 +108,22 @@ def switch_to_game():
 # 3. 初期化 & データ読み込み & 認証
 # ==========================================
 
-# ページの切り替え状態を管理する（初期値は 'home'）
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
 
 st.title("🔒 連想 Gamers Training App")
 
-# 環境変数がない場合のデフォルト値を使用
 if os.environ.get("STREAMLIT_ENV") == "CLOUD":
     SECRET_PASSWORD_VAL = st.secrets.get("SECRET_PASSWORD", "2025")
 else:
     SECRET_PASSWORD_VAL = "2025"
 
-# パスワード認証 (既存)
+# パスワード認証
 password = st.text_input("Password", type="password")
 if password != SECRET_PASSWORD_VAL:
     st.stop()
     
-# 認証成功後のデータ読み込み
+# データの読み込み
 data = load_json(JSON_FILE)
 template = load_json(TEMPLATE_FILE)
 
@@ -68,7 +131,7 @@ if not data or not template:
     st.error("データファイルが見つかりません。")
     st.stop()
 
-# セッションステート初期化 (既存)
+# チャット履歴の初期化
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [] 
 
@@ -78,11 +141,10 @@ if "chat_history" not in st.session_state:
 
 if st.session_state.page == 'home':
     # ----------------------------------------
-    # 【ホーム画面】: 使い方ガイドとゲーム開始ボタンのみ表示
+    # 【ホーム画面】
     # ----------------------------------------
     st.header("トレーニングを開始します")
     
-    # ★ 使い方ガイド (既存のコード) ★
     with st.expander("📖 遊び方 / How to Play (クリックで開く)", expanded=True):
         st.markdown("""
         **このアプリは、AI相手に英語で質問をして「正解のアイテム」を当てるゲームです。**
@@ -107,44 +169,55 @@ if st.session_state.page == 'home':
         """)
 
     st.markdown("---")
-    
-    # ゲーム開始ボタン
     st.button("🚀 ゲーム開始", on_click=switch_to_game, type="primary")
 
 elif st.session_state.page == 'game':
     # ----------------------------------------
-    # 【チャットゲーム画面】: チャットUIとして機能
+    # 【チャットゲーム画面】
     # ----------------------------------------
     st.header("💬 チャットゲーム開始！")
     
     # ==========================================
-    # 4. チャット履歴の表示 (画面上部)
+    # 4. チャット履歴の表示 (LINE風 HTMLレンダリング)
     # ==========================================
-    # LINE風の見た目を維持するため、st.success/errorの代わりに絵文字とmarkdownを使用
-    for chat in st.session_state.chat_history:
-        if chat["role"] == "user":
-            with st.chat_message("user", avatar="😊"):
-                st.write(chat["content"])
-        elif chat["role"] == "assistant":
-            with st.chat_message("assistant", avatar="🤖"):
+    chat_container = st.container()
+    with chat_container:
+        for chat in st.session_state.chat_history:
+            if chat["role"] == "user":
+                # ユーザーの発言 (右側・緑)
+                st.markdown(f"""
+                <div class="user-bubble">
+                    {chat["content"]}
+                </div>
+                """, unsafe_allow_html=True)
+                
+            elif chat["role"] == "assistant":
+                # AIの発言 (左側・白・アイコン付き)
                 content = chat["content"]
                 status = chat.get("status")
                 
-                # ステータスに応じて絵文字と色で強調
+                # ステータスに応じた装飾テキストの作成
+                display_text = content
                 if status == "success":
-                    # Yes/Correct の場合 (緑色🟢)
-                    st.markdown(f"🟢 {content}")
+                    display_text = f"🟢 {content}"
                 elif status == "error":
-                    # No の場合 (赤色🔴)
-                    st.markdown(f"🔴 {content}")
+                    display_text = f"🔴 {content}"
                 else:
-                    # Warning/その他 の場合 (黄色🟡)
-                    st.markdown(f"🟡 {content}")
+                    display_text = f"🟡 {content}"
+
+                st.markdown(f"""
+                <div class="bot-bubble-container">
+                    <div class="bot-avatar">🤖</div>
+                    <div class="bot-bubble">
+                        {display_text}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
     st.divider()
 
     # ==========================================
-    # 5. 入力エリア (画面下部) - 既存のロジックを維持
+    # 5. 入力エリア
     # ==========================================
 
     # --- カテゴリ選択 ---
@@ -155,7 +228,6 @@ elif st.session_state.page == 'game':
     question_prefix = step_data["question"]
     options_dict = step_data["options"]
 
-    # Q: ... の表示
     st.markdown(f"### Q: {question_prefix} ... ?")
 
     # --- 入力フォーム ---
@@ -178,7 +250,6 @@ elif st.session_state.page == 'game':
     # 6. 判定ロジック
     # ==========================================
     if submit_button:
-        # AIの思考中をシミュレート
         with st.spinner("AIが考え中..."):
             time.sleep(1.5) 
             
@@ -222,9 +293,8 @@ elif st.session_state.page == 'game':
                 
                 if search_keyword in all_rules:
                     answer_key = all_rules[search_keyword]
-                    # .wavを除去し、すべて大文字に変換
                     display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
-                    # YES/CORRECT が含まれていれば success (緑色)
+                    
                     status = "success" if ("YES" in display_answer or "CORRECT" in display_answer) else "error"
                     
                     st.session_state.chat_history.append({
@@ -239,5 +309,4 @@ elif st.session_state.page == 'game':
                         "status": "warning"
                     })
             
-            # 画面を更新
             st.rerun()
