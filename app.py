@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import os
 import time
+import re
 
 # ==========================================
 # 1. 設定エリア
@@ -30,14 +31,14 @@ st.markdown("""
 
     /* ★チャット全体を包む箱（スクロールエリア）★ */
     .chat-scroll-area {
-        height: 500px;            /* 高さ固定 */
+        height: 450px;            /* 高さ固定 */
         overflow-y: auto;         /* スクロール可能に */
         display: flex;            /* フレックスボックス化 */
         flex-direction: column-reverse; /* 【重要】下から順に積み上げる設定 */
         padding: 20px;
         background-color: rgba(255, 255, 255, 0.1); 
         border-radius: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     /* ユーザーの吹き出し */
@@ -79,8 +80,8 @@ st.markdown("""
 
     /* フォーム周りの装飾 */
     [data-testid="stForm"] {
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 15px;
         border-radius: 10px;
     }
     
@@ -99,32 +100,52 @@ st.markdown("""
         font-size: 14px;
         font-weight: bold;
         color: #333;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
     
     .question-text {
         font-size: 48px;      /* 超巨大化 */
         font-weight: bold;
         color: #FFFF00;       /* 黄色 */
-        margin-top: 5px;
-        margin-bottom: 20px;
+        margin-top: 0px;
+        margin-bottom: 15px;
         line-height: 1.1;
         text-shadow: 3px 3px 0px #333333;
     }
 
     /* 初級者モード用の練習リストのデザイン */
+    .training-container {
+        max-height: 300px; /* 少し縦長に */
+        overflow-y: auto;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        background-color: white;
+        margin-bottom: 10px;
+    }
+    .training-header {
+        font-size: 14px;
+        font-weight: bold;
+        color: #555;
+        background-color: #f0f0f0;
+        padding: 5px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        border-left: 4px solid #7494c0;
+    }
     .training-list-item {
         font-size: 16px;
-        padding: 5px;
-        border-bottom: 1px dashed #ccc;
+        padding: 5px 10px;
+        border-bottom: 1px solid #eee;
         color: #333;
     }
     .training-list-completed {
         font-size: 16px;
-        padding: 5px;
-        border-bottom: 1px dashed #ccc;
-        color: #aaa;
-        text-decoration: line-through; /* 完了したら取り消し線 */
+        padding: 5px 10px;
+        border-bottom: 1px solid #eee;
+        color: #888;
+        background-color: #e8f5e9; /* 薄い緑背景 */
+        font-weight: bold;
     }
 
 </style>
@@ -150,7 +171,8 @@ def normalize_text(text):
     """入力テキストから ... ? . などの記号を除去し、小文字化して空白除去する"""
     if not text:
         return ""
-    return text.replace("...", "").replace("?", "").replace(".", "").replace(",", "").strip().lower()
+    text = re.sub(r'[.?,]+', ' ', text)
+    return " ".join(text.split()).lower()
 
 # ==========================================
 # 3. 初期化 & データ読み込み
@@ -195,11 +217,11 @@ if st.session_state.page == 'home':
         **2つのモードで英語力を鍛えよう！**
         
         **🔰 初級者モード (Beginner):**
-        - 「練習リスト」に表示される英語を全て声に出して入力してください。
-        - 正しく言えるとリストにチェック✅がつきます。まずは完走を目指そう！
+        - 配信で使う「全8カテゴリーの質問」を順番に練習します。
+        - 画面に表示される大きな英語を読み上げてください。
 
         **🔥 上級者モード (Advanced):**
-        - リスト以外の質問も自由に入力できます。
+        - 自由に質問を選んで入力できます。
         - 隠されたヒントを見つけ出し、AIから正解を引き出してください！
         """)
     st.markdown("---")
@@ -212,9 +234,9 @@ elif st.session_state.page == 'game':
         st.title("Settings")
         mode = st.radio("Mode Select:", ["🔰 初級者 (Training)", "🔥 上級者 (Advanced)"])
         
-        if st.button("Clear Chat History"):
+        if st.button("Clear / Reset"):
             st.session_state.chat_history = []
-            st.session_state.completed_phrases = set() # 履歴クリア時に達成状況もリセット
+            st.session_state.completed_phrases = set()
             st.rerun()
 
     st.header("💬 チャットゲーム開始！")
@@ -249,74 +271,172 @@ elif st.session_state.page == 'game':
     st.markdown(chat_html, unsafe_allow_html=True)
 
     # ==========================================
-    # 5. 入力エリア (モードによって変化)
+    # 5. 入力エリア (モードによって劇的に変化)
     # ==========================================
     
     step_list = list(template.keys())
-
-    if "selected_category_key" not in st.session_state:
-        st.session_state.selected_category_key = step_list[0]
-
-    st.markdown('<p class="category-label">カテゴリー選択</p>', unsafe_allow_html=True)
-
-    current_cat = st.session_state.selected_category_key
-    step_data = template[current_cat]
-    question_prefix = step_data["question"]
-    options_dict = step_data["options"]
-
-    # Q: ... を超巨大表示
-    st.markdown(f'<p class="question-text">Q: {question_prefix} ... ?</p>', unsafe_allow_html=True)
-
-    # 選択ボックス (ラベルは隠す)
-    st.selectbox(
-        "hidden_label", 
-        step_list, 
-        key="selected_category_key", 
-        label_visibility="collapsed"
-    )
-
-    # 入力フォーム
-    with st.form(key='game_form', clear_on_submit=True):
+    
+    # ---------------------------------------------------------
+    # 【A】初級者モード: 完全固定ドリルリスト
+    # ---------------------------------------------------------
+    if mode == "🔰 初級者 (Training)":
         
-        # 1. テキスト/音声入力 (全モード共通)
-        user_input = st.text_input("Voice/Text: 入力する", placeholder=f"Ex: {question_prefix} house?")
-        
-        selected_option_label = "(Select from list)" # デフォルト値
+        # ★ 全8カテゴリー 完全ドリルメニュー ★
+        TRAINING_MENU = [
+            # 1. 場所
+            {"cat": "1. 場所 (Place)", "q": "Can you find it in the house?", "kw": "house"},
+            {"cat": "1. 場所 (Place)", "q": "Can you find it outside?", "kw": "outside"},
+            {"cat": "1. 場所 (Place)", "q": "Can you find it in the sky?", "kw": "sky"},
+            {"cat": "1. 場所 (Place)", "q": "Can you find it at the convenience store?", "kw": "convenience store"},
+            {"cat": "1. 場所 (Place)", "q": "Can you find it at the one hundred yen shop?", "kw": "one hundred yen shop"},
+            {"cat": "1. 場所 (Place)", "q": "Can you find it at the electronics store?", "kw": "electronics store"},
+            {"cat": "1. 場所 (Place)", "q": "Can you find it at the home center?", "kw": "home center"},
+            {"cat": "1. 場所 (Place)", "q": "Can you find it at the Amazon?", "kw": "amazon"},
 
-        # 2. ヒント/練習リストの表示 (モード分岐)
-        if mode == "🔥 上級者 (Advanced)":
-            # 上級者: 従来通り選択して送信が可能
+            # 2. 素材
+            {"cat": "2. 素材 (Material)", "q": "Is it made of metal?", "kw": "metal"},
+            {"cat": "2. 素材 (Material)", "q": "Is it made of plastic?", "kw": "plastic"},
+            {"cat": "2. 素材 (Material)", "q": "Is it made of paper?", "kw": "paper"},
+            {"cat": "2. 素材 (Material)", "q": "Is it made of cloth?", "kw": "cloth"},
+            {"cat": "2. 素材 (Material)", "q": "Is it made of wood?", "kw": "wood"},
+            {"cat": "2. 素材 (Material)", "q": "Is it made of glass?", "kw": "glass"},
+            {"cat": "2. 素材 (Material)", "q": "Is it made of leather?", "kw": "leather"},
+
+            # 3. 大きさ
+            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your eye?", "kw": "your eye"},
+            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your finger?", "kw": "your finger"},
+            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your hand?", "kw": "your hand"},
+            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your head?", "kw": "your head"},
+            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than you?", "kw": "you"},
+            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than a house?", "kw": "a house"},
+
+            # 4. 色
+            {"cat": "4. 色 (Color)", "q": "Is it white?", "kw": "white"},
+            {"cat": "4. 色 (Color)", "q": "Is it black?", "kw": "black"},
+            {"cat": "4. 色 (Color)", "q": "Is it red?", "kw": "red"},
+            {"cat": "4. 色 (Color)", "q": "Is it silver?", "kw": "silver"},
+            {"cat": "4. 色 (Color)", "q": "Is it blue?", "kw": "blue"},
+            {"cat": "4. 色 (Color)", "q": "Is it green?", "kw": "green"},
+            {"cat": "4. 色 (Color)", "q": "Is it brown?", "kw": "brown"},
+            {"cat": "4. 色 (Color)", "q": "Is it yellow?", "kw": "yellow"},
+            {"cat": "4. 色 (Color)", "q": "Is it gold?", "kw": "gold"},
+
+            # 5. 形 (型: Is it like a...?)
+            {"cat": "5. 形 (Shape)", "q": "Is it like a round?", "kw": "round"},
+            {"cat": "5. 形 (Shape)", "q": "Is it like a triangle?", "kw": "triangle"},
+            {"cat": "5. 形 (Shape)", "q": "Is it like a square?", "kw": "square"},
+            {"cat": "5. 形 (Shape)", "q": "Is it like a rectangle?", "kw": "rectangle"},
+            {"cat": "5. 形 (Shape)", "q": "Is it like a circle?", "kw": "circle"},
+            {"cat": "5. 形 (Shape)", "q": "Is it like a ball?", "kw": "ball"},
+            {"cat": "5. 形 (Shape)", "q": "Is it like a box?", "kw": "box"},
+            {"cat": "5. 形 (Shape)", "q": "Is it like a stick?", "kw": "stick"},
+
+            # 6. 動力
+            {"cat": "6. 動力 (Power)", "q": "Does it use battery?", "kw": "battery"},
+            {"cat": "6. 動力 (Power)", "q": "Does it use electricity?", "kw": "electricity"},
+            {"cat": "6. 動力 (Power)", "q": "Does it use gas?", "kw": "gas"},
+            {"cat": "6. 動力 (Power)", "q": "Does it use fire?", "kw": "fire"},
+            {"cat": "6. 動力 (Power)", "q": "Does it use water?", "kw": "water"},
+
+            # 7. 特徴
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have numbers?", "kw": "numbers"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have letters?", "kw": "letters"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have pictures?", "kw": "pictures"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a hole?", "kw": "hole"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a handle?", "kw": "handle"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a door?", "kw": "door"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have doors?", "kw": "doors"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a lid?", "kw": "lid"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have legs?", "kw": "legs"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have arms?", "kw": "arms"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a neck?", "kw": "neck"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a face?", "kw": "face"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a head?", "kw": "head"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a screen?", "kw": "screen"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have wheels?", "kw": "wheels"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a string?", "kw": "string"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have a cord?", "kw": "cord"},
+            {"cat": "7. 特徴 (Feature)", "q": "Does it have bones?", "kw": "bones"},
+
+            # 8. 用途
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it for leisure?", "kw": "leisure"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it for work?", "kw": "work"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it for life?", "kw": "life"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it with your hand?", "kw": "your hand"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it with your both hands?", "kw": "both hands"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it every day?", "kw": "every day"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it all seasons?", "kw": "all seasons"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it to do something?", "kw": "do something"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it to get something?", "kw": "get something"},
+            {"cat": "8. 用途 (Usage)", "q": "Do you use it not to get something?", "kw": "not to get something"},
+        ]
+
+        st.markdown('<p class="category-label">▼ Mission List: 順番に読み上げてください</p>', unsafe_allow_html=True)
+
+        # リスト表示 (カテゴリーごとに見出しをつける)
+        training_html = '<div class="training-container">'
+        
+        next_target_question = "All Missions Complete! 🎉"
+        found_next = False
+        current_display_cat = ""
+
+        for task in TRAINING_MENU:
+            cat = task["cat"]
+            kw = task["kw"]
+            q_text = task["q"]
+            
+            # カテゴリが変わったら見出しを入れる
+            if cat != current_display_cat:
+                training_html += f'<div class="training-header">{cat}</div>'
+                current_display_cat = cat
+
+            is_done = kw in st.session_state.completed_phrases
+            
+            if is_done:
+                training_html += f'<div class="training-list-completed">✅ {q_text}</div>'
+            else:
+                training_html += f'<div class="training-list-item">⬜ {q_text}</div>'
+                if not found_next:
+                    next_target_question = q_text
+                    found_next = True
+        
+        training_html += '</div>'
+        st.markdown(training_html, unsafe_allow_html=True)
+
+        # ★超巨大 Q: (次のお題)★
+        st.markdown(f'<p class="question-text">Q: {next_target_question}</p>', unsafe_allow_html=True)
+
+        with st.form(key='training_form', clear_on_submit=True):
+            user_input = st.text_input("Voice/Text: 入力する", placeholder="上の英文を読んでください")
+            submit_button = st.form_submit_button(label='送信する')
+
+
+    # ---------------------------------------------------------
+    # 【B】上級者モード: カテゴリ選択あり、自由入力
+    # ---------------------------------------------------------
+    else:
+        if "selected_category_key" not in st.session_state:
+            st.session_state.selected_category_key = step_list[0]
+
+        st.markdown('<p class="category-label">カテゴリー選択</p>', unsafe_allow_html=True)
+        current_cat = st.session_state.selected_category_key
+        step_data = template[current_cat]
+        question_prefix = step_data["question"]
+        options_dict = step_data["options"]
+
+        st.markdown(f'<p class="question-text">Q: {question_prefix} ... ?</p>', unsafe_allow_html=True)
+
+        st.selectbox("hidden", step_list, key="selected_category_key", label_visibility="collapsed")
+
+        with st.form(key='gamer_form', clear_on_submit=True):
+            user_input = st.text_input("Voice/Text: 入力する", placeholder=f"Ex: {question_prefix} house?")
             option_labels = ["(Select from list)"] + list(options_dict.keys())
-            selected_option_label = st.selectbox("Hint List: 選択して送信も可能", option_labels)
-        
-        else:
-            # 初級者: 選択送信は不可。代わりに「練習リスト」を表示するだけ
-            st.markdown("**▼ 練習リスト (全部言ってみよう！):**")
-            
-            # リストを表示 (達成状況に応じてチェックマーク)
-            # ※フォームの中なのでHTMLで綺麗に描画します
-            training_html = '<div style="background-color: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 10px;">'
-            
-            for label, val_obj in options_dict.items():
-                # キーワードが達成済みセットに入っているか確認
-                kw = val_obj["keyword"]
-                is_done = False
-                # 簡単な判定: keywordが完了リストにあるか
-                if kw in st.session_state.completed_phrases:
-                    is_done = True
-                
-                if is_done:
-                    training_html += f'<div class="training-list-completed">✅ {label}</div>'
-                else:
-                    training_html += f'<div class="training-list-item">⬜ {label}</div>'
-            
-            training_html += '</div>'
-            st.markdown(training_html, unsafe_allow_html=True)
+            selected_option_label = st.selectbox("Hint List: 選択する", option_labels)
+            submit_button = st.form_submit_button(label='送信する')
 
-        submit_button = st.form_submit_button(label='送信する')
 
     # ==========================================
-    # 6. 判定ロジック
+    # 6. 判定ロジック (共通)
     # ==========================================
     if submit_button:
         with st.spinner("AIが考え中..."):
@@ -331,40 +451,47 @@ elif st.session_state.page == 'game':
                 clean_input = normalize_text(user_input)
                 display_question = user_input
                 
-                all_candidates = []
-                for s_content in template.values():
-                    for label, val_obj in s_content["options"].items():
-                        all_candidates.append((label, val_obj["keyword"]))
-                
-                all_candidates.sort(key=lambda x: len(x[0]), reverse=True)
-                
-                found = False
-                for label, kw in all_candidates:
-                    clean_label = normalize_text(label)
+                # --- マッチングロジック ---
+                if current_mode_is_beginner:
+                    # 初級者モード: 定義したTRAINING_MENUから探す
+                    for task in TRAINING_MENU:
+                        t_kw = task["kw"]
+                        if t_kw in clean_input or normalize_text(task["q"]) in clean_input:
+                            search_keyword = t_kw
+                            break
+                else:
+                    # 上級者モード: JSONテンプレートから探す
+                    all_candidates = []
+                    for s_content in template.values():
+                        for label, val_obj in s_content["options"].items():
+                            all_candidates.append((label, val_obj["keyword"]))
                     
-                    if clean_label in clean_input or kw in clean_input:
-                        search_keyword = kw
-                        found = True
-                        break
+                    all_candidates.sort(key=lambda x: len(x[0]), reverse=True)
+                    
+                    for label, kw in all_candidates:
+                        clean_label = normalize_text(label)
+                        if clean_label in clean_input or kw in clean_input:
+                            search_keyword = kw
+                            break
                 
                 if not search_keyword:
                     st.session_state.chat_history.append({"role": "user", "content": user_input})
                     st.session_state.chat_history.append({"role": "assistant", "content": "🤔 Sorry, I didn't catch that.", "status": "warning"})
-                
-            # B. リストから選んだ場合 (上級者モードのみ有効)
+
+            # B. リストから選んだ場合 (上級者のみ)
             elif not current_mode_is_beginner and selected_option_label != "(Select from list)":
                 val_obj = options_dict[selected_option_label]
                 search_keyword = val_obj["keyword"]
                 display_question = f"{question_prefix} {selected_option_label}?"
 
-            # --- 回答処理 ---
+            # --- 結果処理 ---
             if search_keyword:
-                # ★初級者モードなら、達成リストに記録する★
                 if current_mode_is_beginner:
                     st.session_state.completed_phrases.add(search_keyword)
-
+                
                 st.session_state.chat_history.append({"role": "user", "content": display_question})
 
+                # 回答の検索
                 all_rules = {}
                 for cat in data["rules"].values():
                     all_rules.update(cat)
@@ -392,10 +519,18 @@ elif st.session_state.page == 'game':
                         "status": status
                     })
                 else:
-                    st.session_state.chat_history.append({
-                        "role": "assistant", 
-                        "content": f"Data not found: {search_keyword}", 
-                        "status": "warning"
-                    })
+                    # JSONにない単語でも、初級者モードで正しく言えていればOK判定
+                    if current_mode_is_beginner:
+                         st.session_state.chat_history.append({
+                            "role": "assistant", 
+                            "content": f"AI: <b>Good Pronunciation! (Training)</b>", 
+                            "status": "success"
+                        })
+                    else:
+                        st.session_state.chat_history.append({
+                            "role": "assistant", 
+                            "content": f"Data not found: {search_keyword}", 
+                            "status": "warning"
+                        })
             
             st.rerun()
