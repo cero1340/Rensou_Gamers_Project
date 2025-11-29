@@ -103,14 +103,13 @@ st.markdown("""
     }
     
     .question-text {
-        font-size: 28px;      /* ★修正: さらに大きく (24px -> 28px) */
+        font-size: 35px;      /* ★修正: 28px -> 35px に大幅アップ */
         font-weight: bold;
-        color: #FFFF00;       /* ★修正: 鮮やかな黄色に変更 */
+        color: #FFFF00;       /* 鮮やかな黄色 */
         margin-top: 0px;
         margin-bottom: 15px;
-        line-height: 1.3;
-        /* 黄色が背景に埋もれないよう、黒い影をつけてくっきりさせる */
-        text-shadow: 2px 2px 0px #333333; 
+        line-height: 1.2;     /* 行間を少し詰めてまとまりよく */
+        text-shadow: 2px 2px 0px #333333; /* 黒い影で視認性確保 */
     }
 
 </style>
@@ -225,7 +224,7 @@ elif st.session_state.page == 'game':
     question_prefix = step_data["question"]
     options_dict = step_data["options"]
 
-    # ★Q: ... を黄色で大きく強調表示★
+    # ★Q: ... をさらに大きく強調★
     st.markdown(f'<p class="question-text">Q: {question_prefix} ... ?</p>', unsafe_allow_html=True)
 
     # 選択ボックス (ラベルは隠す)
