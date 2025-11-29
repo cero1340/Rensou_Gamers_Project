@@ -12,7 +12,7 @@ TEMPLATE_FILE = "Questions_template.json"
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
 # ==========================================
-# ★ LINE風デザインCSSの適用 ★
+# ★ LINE風デザインCSSの適用（入力欄固定版） ★
 # ==========================================
 st.markdown("""
 <style>
@@ -35,8 +35,8 @@ st.markdown("""
         color: black;
         padding: 10px 15px;
         border-radius: 15px;
-        border-top-right-radius: 0; /* 右上の角を尖らせる */
-        margin: 5px 0 5px auto; /* 右寄せ */
+        border-top-right-radius: 0; 
+        margin: 5px 0 5px auto; 
         max-width: 80%;
         width: fit-content;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
@@ -59,19 +59,12 @@ st.markdown("""
         color: black;
         padding: 10px 15px;
         border-radius: 15px;
-        border-top-left-radius: 0; /* 左上の角を尖らせる */
+        border-top-left-radius: 0;
         max-width: 80%;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         text-align: left;
     }
 
-    /* 入力フォーム周りの背景を少し見やすく */
-    [data-testid="stForm"] {
-        background-color: rgba(255, 255, 255, 0.8);
-        padding: 20px;
-        border-radius: 10px;
-    }
-    
     /* Expanderの背景を白くして読みやすく */
     .streamlit-expanderContent {
         background-color: white;
@@ -81,6 +74,32 @@ st.markdown("""
     .streamlit-expanderHeader {
         background-color: white;
         border-radius: 10px 10px 0 0;
+    }
+
+    /* ▼▼▼ 追加：入力フォームを画面下に固定する設定 ▼▼▼ */
+    
+    /* フォーム自体を画面最下部に固定 */
+    [data-testid="stForm"] {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #f0f2f6; /* 背景色をつけてチャットと区別 */
+        padding: 15px 20px;
+        z-index: 9999; /* 最前面に表示 */
+        border-top: 2px solid #ddd;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* フォームの中身のレイアウト調整 */
+    [data-testid="stForm"] > div {
+        max-width: 800px; /* PCで見やすく幅制限 */
+        margin: 0 auto;
+    }
+
+    /* チャットエリアの下部に余白を作り、フォームで隠れないようにする */
+    .main .block-container {
+        padding-bottom: 400px !important;
     }
 
 </style>
@@ -111,18 +130,31 @@ def switch_to_game():
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
 
-st.title("🔒 連想 Gamers Training App")
+# サイドバーに設定とタイトルを表示
+with st.sidebar:
+    st.title("連想 Training 🎮")
+    st.markdown("---")
 
 if os.environ.get("STREAMLIT_ENV") == "CLOUD":
     SECRET_PASSWORD_VAL = st.secrets.get("SECRET_PASSWORD", "2025")
 else:
     SECRET_PASSWORD_VAL = "2025"
 
-# パスワード認証
-password = st.text_input("Password", type="password")
-if password != SECRET_PASSWORD_VAL:
-    st.stop()
-    
+# パスワード認証 (サイドバーではなくメイン画面で最初だけ行う)
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.title("🔒 Login")
+    password = st.text_input("Password", type="password")
+    if password == SECRET_PASSWORD_VAL:
+        st.session_state.authenticated = True
+        st.rerun()
+    else:
+        if password:
+            st.error("Incorrect password")
+        st.stop()
+
 # データの読み込み
 data = load_json(JSON_FILE)
 template = load_json(TEMPLATE_FILE)
@@ -150,22 +182,17 @@ if st.session_state.page == 'home':
         **このアプリは、AI相手に英語で質問をして「正解のアイテム」を当てるゲームです。**
         
         1. **カテゴリを選ぶ**
-            - 上のメニューから「場所」や「素材」などを選びます。
-            - すると `Q: ...` の横に、質問の定型文（ヒント）が表示されます。
+            - 左のサイドバーから「場所」や「素材」などを選びます。
+            - ゲーム画面の下に質問のヒントが表示されます。
             
         2. **質問を入力する (2つの方法)**
             - 🎤 **A. 自分で聞く :** - マイク入力などで、自分で英文を作って質問してみましょう。
-            - 例: `Is it made of metal?`
-            - 📝 **B. リストから選ぶ :** - 思いつかない時は、リストからキーワードを選んで質問できます。
+            - 📝 **B. リストから選ぶ :** - リストからキーワードを選んで質問できます。
             
             【注意点】必ず「英語キーボード」にして下さい。
 
         3. **送信 (Submit)**
-            - ボタンを押すとAIが答えます。
             - **Yes** なら緑色🟢、**No** なら赤色🔴 で履歴に残ります。
-            
-        ---
-        🗣️ **Point:** 声に出して質問する練習をしていけば、必ず「連想型スピーキング」が身に付きます！まずは「初級編」から初めて、慣れてきたら「上級編」にチャレンジして下さい！
         """)
 
     st.markdown("---")
@@ -177,9 +204,24 @@ elif st.session_state.page == 'game':
     # ----------------------------------------
     st.header("💬 チャットゲーム開始！")
     
+    # --- カテゴリ選択 (サイドバーに移動) ---
+    with st.sidebar:
+        st.header("⚙️ 設定 / Settings")
+        step_list = list(template.keys())
+        current_step_label = st.selectbox("カテゴリー選択", step_list)
+        
+        st.markdown("---")
+        st.markdown("**Hints:**")
+        # サイドバーにもヒントを出しておく
+        step_data = template[current_step_label]
+        question_prefix = step_data["question"]
+        options_dict = step_data["options"]
+        st.info(f"Q: {question_prefix} ... ?")
+
     # ==========================================
-    # 4. チャット履歴の表示 (LINE風 HTMLレンダリング)
+    # 4. チャット履歴の表示
     # ==========================================
+    # チャット履歴を表示するコンテナ
     chat_container = st.container()
     with chat_container:
         for chat in st.session_state.chat_history:
@@ -192,11 +234,11 @@ elif st.session_state.page == 'game':
                 """, unsafe_allow_html=True)
                 
             elif chat["role"] == "assistant":
-                # AIの発言 (左側・白・アイコン付き)
+                # AIの発言 (左側・白)
                 content = chat["content"]
                 status = chat.get("status")
                 
-                # ステータスに応じた装飾テキストの作成
+                # アイコンと色
                 display_text = content
                 if status == "success":
                     display_text = f"🟢 {content}"
@@ -214,44 +256,41 @@ elif st.session_state.page == 'game':
                 </div>
                 """, unsafe_allow_html=True)
 
-    st.divider()
-
     # ==========================================
-    # 5. 入力エリア
+    # 5. 入力エリア (画面下に固定)
     # ==========================================
-
-    # --- カテゴリ選択 ---
-    step_list = list(template.keys())
-    current_step_label = st.selectbox("カテゴリー選択", step_list)
-
-    step_data = template[current_step_label]
-    question_prefix = step_data["question"]
-    options_dict = step_data["options"]
-
-    st.markdown(f"### Q: {question_prefix} ... ?")
 
     # --- 入力フォーム ---
+    # CSSで [data-testid="stForm"] をbottom:0に固定しています
     with st.form(key='game_form', clear_on_submit=True):
         
-        # 1. 自分で入力
-        user_input = st.text_input(
-            "Voice/Text: 入力する",
-            placeholder=f"Ex: {question_prefix} house?"
-        )
+        # ヒントをフォーム内にも表示（入力時に見えるように）
+        st.markdown(f"**Hint:** `{question_prefix} ... ?`")
 
-        # 2. リストから選ぶ (Hint List)
-        option_labels = ["(Select from list)"] + list(options_dict.keys())
-        selected_option_label = st.selectbox("Hint List: 選択する", option_labels)
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # 1. 自分で入力
+            user_input = st.text_input(
+                "Voice/Text Input",
+                placeholder=f"Ex: {question_prefix} house?",
+                label_visibility="collapsed" # ラベルを隠してスッキリさせる
+            )
+
+        with col2:
+            # 2. リストから選ぶ
+            option_labels = ["(List)"] + list(options_dict.keys())
+            selected_option_label = st.selectbox("Select", option_labels, label_visibility="collapsed")
         
         # 送信ボタン
-        submit_button = st.form_submit_button(label='送信する')
+        submit_button = st.form_submit_button(label='送信 / Submit', type="primary")
 
     # ==========================================
     # 6. 判定ロジック
     # ==========================================
     if submit_button:
-        with st.spinner("AIが考え中..."):
-            time.sleep(1.5) 
+        with st.spinner("AI thinking..."):
+            time.sleep(1.0) 
             
             search_keyword = None
             display_question = ""
@@ -276,7 +315,7 @@ elif st.session_state.page == 'game':
                     st.session_state.chat_history.append({"role": "assistant", "content": "🤔 Sorry, I didn't catch that.", "status": "warning"})
                 
             # B. リストから選んだ場合
-            elif selected_option_label != "(Select from list)":
+            elif selected_option_label != "(List)":
                 val_obj = options_dict[selected_option_label]
                 search_keyword = val_obj["keyword"]
                 display_question = f"{question_prefix} {selected_option_label}?"
@@ -293,10 +332,9 @@ elif st.session_state.page == 'game':
                 
                 if search_keyword in all_rules:
                     answer_key = all_rules[search_keyword]
-                    # ファイル名(.wav)を除去してキーを取得
                     raw_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
                     
-                    # ★ 表示用の日本語変換マップ ★
+                    # 日本語変換マップ
                     display_map = {
                         "YES": "イエス！",
                         "NO": "ノー！",
@@ -307,14 +345,11 @@ elif st.session_state.page == 'game':
                         "SOME_PEOPLE_USE": "使う人もいるよ！"
                     }
                     
-                    # マップにあれば日本語に、なければそのまま表示
                     display_answer = display_map.get(raw_answer, raw_answer)
-                    
-                    # 緑色にする条件: YES, CORRECT, PARTIAL_YES, USUALLY_YES
                     is_positive = any(k in raw_answer for k in ["YES", "CORRECT", "PARTIAL"])
                     status = "success" if is_positive else "error"
                     
-                    # ★ 修正: HTMLタグ <b> で太字にする ★
+                    # 修正: <b>タグで太字表示
                     st.session_state.chat_history.append({
                         "role": "assistant", 
                         "content": f"AI: <b>{display_answer}</b>", 
