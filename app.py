@@ -293,9 +293,26 @@ elif st.session_state.page == 'game':
                 
                 if search_keyword in all_rules:
                     answer_key = all_rules[search_keyword]
-                    display_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
+                    # ファイル名(.wav)を除去してキーを取得
+                    raw_answer = data["response_map"].get(answer_key, answer_key).replace(".wav", "").upper()
                     
-                    status = "success" if ("YES" in display_answer or "CORRECT" in display_answer) else "error"
+                    # ★ 表示用の日本語変換マップ ★
+                    display_map = {
+                        "YES": "イエス！",
+                        "NO": "ノー！",
+                        "PARTIAL_YES": "部分的にはイエス！",
+                        "CORRECT": "正解！",
+                        "USUALLY_YES": "たいていそうです",
+                        "DEPENS": "時と場合によります",
+                        "SOME_PEOPLE_USE": "使う人もいます"
+                    }
+                    
+                    # マップにあれば日本語に、なければそのまま表示
+                    display_answer = display_map.get(raw_answer, raw_answer)
+                    
+                    # 緑色にする条件: YES, CORRECT, PARTIAL_YES, USUALLY_YES
+                    is_positive = any(k in raw_answer for k in ["YES", "CORRECT", "PARTIAL"])
+                    status = "success" if is_positive else "error"
                     
                     st.session_state.chat_history.append({
                         "role": "assistant", 
