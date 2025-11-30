@@ -116,7 +116,7 @@ st.markdown("""
 
     /* 初級者モード用の練習リストのデザイン */
     .training-container {
-        max-height: 300px; /* 少し縦長に */
+        max-height: 300px;
         overflow-y: auto;
         border: 2px solid #ddd;
         border-radius: 5px;
@@ -154,29 +154,39 @@ st.markdown("""
         background-color: #98e165;
     }
 
-    /* ▼▼▼ 追加: サイドバー開閉ボタン(>>)を「Menu」に変更するCSS ▼▼▼ */
-    [data-testid="stSidebarCollapsedControl"] {
-        background-color: rgba(255, 255, 255, 0.2); /* 半透明の白背景 */
-        border: 1px solid rgba(255, 255, 255, 0.5); /* 薄い枠線 */
-        border-radius: 5px;
-        padding: 5px 10px;
-        color: white;
+    /* ▼▼▼ 追加修正: サイドバー開閉ボタン(>>)を「Menu」に変更する強力なCSS ▼▼▼ */
+    
+    /* ボタン自体のスタイル変更 */
+    button[data-testid="stSidebarCollapsedControl"] {
         width: auto !important;
         height: auto !important;
+        padding: 8px 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        border-radius: 8px !important;
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        transition: background-color 0.3s !important;
     }
     
-    /* 元の矢印アイコン(svg)を非表示にする */
-    [data-testid="stSidebarCollapsedControl"] svg {
+    button[data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* 中のSVGアイコンを完全に消す */
+    button[data-testid="stSidebarCollapsedControl"] > svg,
+    button[data-testid="stSidebarCollapsedControl"] > img {
         display: none !important;
     }
-    
-    /* 代わりに "Menu" という文字を表示する */
-    [data-testid="stSidebarCollapsedControl"]::after {
-        content: "Menu";
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        font-weight: bold;
-        font-size: 14px;
-        line-height: 1;
+
+    /* 代わりに文字を表示する */
+    button[data-testid="stSidebarCollapsedControl"]::after {
+        content: "Menu" !important;
+        font-family: "Helvetica Neue", Arial, sans-serif !important;
+        font-weight: bold !important;
+        font-size: 16px !important;
+        display: block !important;
+        line-height: 1 !important;
+        color: white !important;
     }
 
 </style>
@@ -313,7 +323,7 @@ elif st.session_state.page == 'game':
         
         TRAINING_MENU = training_data
 
-        # ★ プログレスバーの計算と表示 ★
+        # プログレスバー
         total_tasks = len(TRAINING_MENU)
         completed_count = 0
         
@@ -357,7 +367,7 @@ elif st.session_state.page == 'game':
 
         st.markdown(f'<p class="question-text">Q: {next_target_question}</p>', unsafe_allow_html=True)
 
-        # ★ コンプリート時のバルーン演出 ★
+        # バルーン演出
         if completed_count == total_tasks and total_tasks > 0:
             st.balloons()
 
