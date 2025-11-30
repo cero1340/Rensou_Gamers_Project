@@ -215,10 +215,8 @@ if password != SECRET_PASSWORD_VAL:
 # ---------------------------------------------------------
 if mode == "🔰 初級者 (Training)":
     
-    # 1. カテゴリ選択 (選択したらインデックスをリセット)
-    # ユニークなカテゴリリストを作成
+    # 1. カテゴリ選択
     categories = sorted(list(set(item["category"] for item in training_data)))
-    
     selected_cat = st.selectbox("カテゴリー選択", categories)
     
     # カテゴリが変わったらリセットする処理
@@ -245,7 +243,7 @@ if mode == "🔰 初級者 (Training)":
         </div>
         """, unsafe_allow_html=True)
         
-        # フィードバック表示 (前回の判定結果)
+        # フィードバック表示
         fb = st.session_state.last_feedback
         if fb == "Good!":
             st.markdown('<div class="feedback-msg feedback-good">Good! 👍</div>', unsafe_allow_html=True)
@@ -264,6 +262,20 @@ if mode == "🔰 初級者 (Training)":
         </div>
         """, unsafe_allow_html=True)
         target_task = None
+        
+        # ★追加: このカテゴリーだけリセットするボタン★
+        if st.button("Retry this Category"):
+            # 現在のカテゴリ内のキーワードをクリア済みセットから削除
+            for t in current_tasks:
+                kw = t.get("keyword")
+                if kw in st.session_state.completed_phrases:
+                    st.session_state.completed_phrases.remove(kw)
+            
+            # インデックス等をリセット
+            st.session_state.training_cat_index = 0
+            st.session_state.mistake_count = 0
+            st.session_state.last_feedback = ""
+            st.rerun()
 
     # 3. 入力フォーム
     if target_task:
@@ -279,11 +291,10 @@ if mode == "🔰 初級者 (Training)":
             # 正解判定
             if t_kw in clean_input or normalize_text(t_q) in clean_input:
                 st.session_state.last_feedback = "Good!"
-                st.session_state.completed_phrases.add(t_kw) # クリア済みに追加
-                st.session_state.training_cat_index += 1     # 次へ
-                st.session_state.mistake_count = 0           # ミスリセット
+                st.session_state.completed_phrases.add(t_kw)
+                st.session_state.training_cat_index += 1
+                st.session_state.mistake_count = 0
             else:
-                # 不正解時の3回ルール
                 st.session_state.mistake_count += 1
                 count = st.session_state.mistake_count
                 
@@ -293,8 +304,8 @@ if mode == "🔰 初級者 (Training)":
                     st.session_state.last_feedback = "Almost"
                 elif count >= 3:
                     st.session_state.last_feedback = "Skip"
-                    st.session_state.training_cat_index += 1 # 強制次へ
-                    st.session_state.mistake_count = 0       # ミスリセット
+                    st.session_state.training_cat_index += 1
+                    st.session_state.mistake_count = 0
             
             st.rerun()
 
@@ -307,9 +318,8 @@ if mode == "🔰 初級者 (Training)":
         if kw in st.session_state.completed_phrases:
             st.markdown(f"✅ **{q}**")
         else:
-            # まだ or スキップしたもの
             if t == target_task:
-                st.markdown(f"👉 **{q}**") # 今ここ
+                st.markdown(f"👉 **{q}**")
             else:
                 st.markdown(f"⬜ {q}")
 
