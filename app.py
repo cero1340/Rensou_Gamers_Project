@@ -9,7 +9,7 @@ import re
 # ==========================================
 JSON_FILE = "microwave_data.json"
 TEMPLATE_FILE = "Questions_template.json"
-TRAINING_FILE = "training_data.json"  # ★追加: トレーニング用データファイル
+TRAINING_FILE = "training_data.json"
 
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
@@ -148,6 +148,36 @@ st.markdown("""
         background-color: #e8f5e9; /* 薄い緑背景 */
         font-weight: bold;
     }
+    
+    /* プログレスバーの色調整 */
+    .stProgress > div > div > div > div {
+        background-color: #98e165;
+    }
+
+    /* ▼▼▼ 追加: サイドバー開閉ボタン(>>)を「Menu」に変更するCSS ▼▼▼ */
+    [data-testid="stSidebarCollapsedControl"] {
+        background-color: rgba(255, 255, 255, 0.2); /* 半透明の白背景 */
+        border: 1px solid rgba(255, 255, 255, 0.5); /* 薄い枠線 */
+        border-radius: 5px;
+        padding: 5px 10px;
+        color: white;
+        width: auto !important;
+        height: auto !important;
+    }
+    
+    /* 元の矢印アイコン(svg)を非表示にする */
+    [data-testid="stSidebarCollapsedControl"] svg {
+        display: none !important;
+    }
+    
+    /* 代わりに "Menu" という文字を表示する */
+    [data-testid="stSidebarCollapsedControl"]::after {
+        content: "Menu";
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 1;
+    }
 
 </style>
 """, unsafe_allow_html=True)
@@ -169,7 +199,6 @@ def switch_to_game():
     st.session_state.page = 'game'
 
 def normalize_text(text):
-    """入力テキストから ... ? . などの記号を除去し、小文字化して空白除去する"""
     if not text:
         return ""
     text = re.sub(r'[.?,]+', ' ', text)
@@ -193,10 +222,9 @@ password = st.text_input("Password", type="password")
 if password != SECRET_PASSWORD_VAL:
     st.stop()
     
-# 各種データの読み込み
 data = load_json(JSON_FILE)
 template = load_json(TEMPLATE_FILE)
-training_data = load_json(TRAINING_FILE) # ★追加読み込み
+training_data = load_json(TRAINING_FILE)
 
 if not data or not template or not training_data:
     st.error("必要なデータファイルが見つかりません。")
@@ -205,7 +233,6 @@ if not data or not template or not training_data:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [] 
 
-# ★初級者モードのクリア状況を保存するセット★
 if "completed_phrases" not in st.session_state:
     st.session_state.completed_phrases = set()
 
@@ -274,35 +301,43 @@ elif st.session_state.page == 'game':
     st.markdown(chat_html, unsafe_allow_html=True)
 
     # ==========================================
-    # 5. 入力エリア (モードによって劇的に変化)
+    # 5. 入力エリア
     # ==========================================
     
     step_list = list(template.keys())
     
     # ---------------------------------------------------------
-    # 【A】初級者モード: 完全固定ドリルリスト (JSONから読み込み)
+    # 【A】初級者モード
     # ---------------------------------------------------------
     if mode == "🔰 初級者 (Training)":
         
-        # ★ JSONファイルからデータを取得 ★
         TRAINING_MENU = training_data
 
-        st.markdown('<p class="category-label">▼ Mission List: 順番に読み上げてください</p>', unsafe_allow_html=True)
+        # ★ プログレスバーの計算と表示 ★
+        total_tasks = len(TRAINING_MENU)
+        completed_count = 0
+        
+        for task in TRAINING_MENU:
+            if task.get("keyword") in st.session_state.completed_phrases:
+                completed_count += 1
+        
+        progress_val = completed_count / total_tasks if total_tasks > 0 else 0
+        
+        st.markdown(f'<p class="category-label">▼ Mission List ({completed_count}/{total_tasks} Cleared)</p>', unsafe_allow_html=True)
+        st.progress(progress_val) 
 
-        # リスト表示 (カテゴリーごとに見出しをつける)
+        # リスト表示
         training_html = '<div class="training-container">'
         
         next_target_question = "All Missions Complete! 🎉"
         found_next = False
         current_display_cat = ""
 
-        # JSONデータ内のキー名は "category", "question", "keyword" と想定
         for task in TRAINING_MENU:
             cat = task.get("category", "Other")
             kw = task.get("keyword", "")
             q_text = task.get("question", "")
             
-            # カテゴリが変わったら見出しを入れる
             if cat != current_display_cat:
                 training_html += f'<div class="training-header">{cat}</div>'
                 current_display_cat = cat
@@ -320,8 +355,11 @@ elif st.session_state.page == 'game':
         training_html += '</div>'
         st.markdown(training_html, unsafe_allow_html=True)
 
-        # ★超巨大 Q: (次のお題)★
         st.markdown(f'<p class="question-text">Q: {next_target_question}</p>', unsafe_allow_html=True)
+
+        # ★ コンプリート時のバルーン演出 ★
+        if completed_count == total_tasks and total_tasks > 0:
+            st.balloons()
 
         with st.form(key='training_form', clear_on_submit=True):
             user_input = st.text_input("Voice/Text: 入力する", placeholder="上の英文を読んでください")
@@ -329,7 +367,7 @@ elif st.session_state.page == 'game':
 
 
     # ---------------------------------------------------------
-    # 【B】上級者モード: カテゴリ選択あり、自由入力
+    # 【B】上級者モード
     # ---------------------------------------------------------
     else:
         if "selected_category_key" not in st.session_state:
@@ -353,7 +391,7 @@ elif st.session_state.page == 'game':
 
 
     # ==========================================
-    # 6. 判定ロジック (共通)
+    # 6. 判定ロジック
     # ==========================================
     if submit_button:
         with st.spinner("AIが考え中..."):
@@ -363,14 +401,11 @@ elif st.session_state.page == 'game':
             display_question = ""
             current_mode_is_beginner = (mode == "🔰 初級者 (Training)")
 
-            # A. 自分で入力した場合
             if user_input:
                 clean_input = normalize_text(user_input)
                 display_question = user_input
                 
-                # --- マッチングロジック ---
                 if current_mode_is_beginner:
-                    # 初級者モード: JSONのトレーニングデータから探す
                     for task in TRAINING_MENU:
                         t_kw = task.get("keyword", "")
                         t_q = task.get("question", "")
@@ -378,7 +413,6 @@ elif st.session_state.page == 'game':
                             search_keyword = t_kw
                             break
                 else:
-                    # 上級者モード: JSONテンプレートから探す
                     all_candidates = []
                     for s_content in template.values():
                         for label, val_obj in s_content["options"].items():
@@ -396,20 +430,17 @@ elif st.session_state.page == 'game':
                     st.session_state.chat_history.append({"role": "user", "content": user_input})
                     st.session_state.chat_history.append({"role": "assistant", "content": "🤔 Sorry, I didn't catch that.", "status": "warning"})
 
-            # B. リストから選んだ場合 (上級者のみ)
             elif not current_mode_is_beginner and selected_option_label != "(Select from list)":
                 val_obj = options_dict[selected_option_label]
                 search_keyword = val_obj["keyword"]
                 display_question = f"{question_prefix} {selected_option_label}?"
 
-            # --- 結果処理 ---
             if search_keyword:
                 if current_mode_is_beginner:
                     st.session_state.completed_phrases.add(search_keyword)
                 
                 st.session_state.chat_history.append({"role": "user", "content": display_question})
 
-                # 回答の検索
                 all_rules = {}
                 for cat in data["rules"].values():
                     all_rules.update(cat)
@@ -437,7 +468,6 @@ elif st.session_state.page == 'game':
                         "status": status
                     })
                 else:
-                    # JSONにない単語でも、初級者モードで正しく言えていればOK判定
                     if current_mode_is_beginner:
                          st.session_state.chat_history.append({
                             "role": "assistant", 
