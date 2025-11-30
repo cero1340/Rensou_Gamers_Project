@@ -8,7 +8,8 @@ import re
 # 1. 設定エリア
 # ==========================================
 JSON_FILE = "microwave_data.json"
-TEMPLATE_FILE = "Questions_template.json" 
+TEMPLATE_FILE = "Questions_template.json"
+TRAINING_FILE = "training_data.json"  # ★追加: トレーニング用データファイル
 
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
@@ -192,11 +193,13 @@ password = st.text_input("Password", type="password")
 if password != SECRET_PASSWORD_VAL:
     st.stop()
     
+# 各種データの読み込み
 data = load_json(JSON_FILE)
 template = load_json(TEMPLATE_FILE)
+training_data = load_json(TRAINING_FILE) # ★追加読み込み
 
-if not data or not template:
-    st.error("データファイルが見つかりません。")
+if not data or not template or not training_data:
+    st.error("必要なデータファイルが見つかりません。")
     st.stop()
 
 if "chat_history" not in st.session_state:
@@ -277,99 +280,12 @@ elif st.session_state.page == 'game':
     step_list = list(template.keys())
     
     # ---------------------------------------------------------
-    # 【A】初級者モード: 完全固定ドリルリスト
+    # 【A】初級者モード: 完全固定ドリルリスト (JSONから読み込み)
     # ---------------------------------------------------------
     if mode == "🔰 初級者 (Training)":
         
-        # ★ 全8カテゴリー 完全ドリルメニュー ★
-        TRAINING_MENU = [
-            # 1. 場所
-            {"cat": "1. 場所 (Place)", "q": "Can you find it in the house?", "kw": "house"},
-            {"cat": "1. 場所 (Place)", "q": "Can you find it outside?", "kw": "outside"},
-            {"cat": "1. 場所 (Place)", "q": "Can you find it in the sky?", "kw": "sky"},
-            {"cat": "1. 場所 (Place)", "q": "Can you find it at the convenience store?", "kw": "convenience store"},
-            {"cat": "1. 場所 (Place)", "q": "Can you find it at the one hundred yen shop?", "kw": "one hundred yen shop"},
-            {"cat": "1. 場所 (Place)", "q": "Can you find it at the electronics store?", "kw": "electronics store"},
-            {"cat": "1. 場所 (Place)", "q": "Can you find it at the home center?", "kw": "home center"},
-            {"cat": "1. 場所 (Place)", "q": "Can you find it at the Amazon?", "kw": "amazon"},
-
-            # 2. 素材
-            {"cat": "2. 素材 (Material)", "q": "Is it made of metal?", "kw": "metal"},
-            {"cat": "2. 素材 (Material)", "q": "Is it made of plastic?", "kw": "plastic"},
-            {"cat": "2. 素材 (Material)", "q": "Is it made of paper?", "kw": "paper"},
-            {"cat": "2. 素材 (Material)", "q": "Is it made of cloth?", "kw": "cloth"},
-            {"cat": "2. 素材 (Material)", "q": "Is it made of wood?", "kw": "wood"},
-            {"cat": "2. 素材 (Material)", "q": "Is it made of glass?", "kw": "glass"},
-            {"cat": "2. 素材 (Material)", "q": "Is it made of leather?", "kw": "leather"},
-
-            # 3. 大きさ
-            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your eye?", "kw": "your eye"},
-            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your finger?", "kw": "your finger"},
-            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your hand?", "kw": "your hand"},
-            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than your head?", "kw": "your head"},
-            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than you?", "kw": "you"},
-            {"cat": "3. 大きさ (Size)", "q": "Is it bigger than a house?", "kw": "a house"},
-
-            # 4. 色
-            {"cat": "4. 色 (Color)", "q": "Is it white?", "kw": "white"},
-            {"cat": "4. 色 (Color)", "q": "Is it black?", "kw": "black"},
-            {"cat": "4. 色 (Color)", "q": "Is it red?", "kw": "red"},
-            {"cat": "4. 色 (Color)", "q": "Is it silver?", "kw": "silver"},
-            {"cat": "4. 色 (Color)", "q": "Is it blue?", "kw": "blue"},
-            {"cat": "4. 色 (Color)", "q": "Is it green?", "kw": "green"},
-            {"cat": "4. 色 (Color)", "q": "Is it brown?", "kw": "brown"},
-            {"cat": "4. 色 (Color)", "q": "Is it yellow?", "kw": "yellow"},
-            {"cat": "4. 色 (Color)", "q": "Is it gold?", "kw": "gold"},
-
-            # 5. 形 (型: Is it like a...?)
-            {"cat": "5. 形 (Shape)", "q": "Is it like a round?", "kw": "round"},
-            {"cat": "5. 形 (Shape)", "q": "Is it like a triangle?", "kw": "triangle"},
-            {"cat": "5. 形 (Shape)", "q": "Is it like a square?", "kw": "square"},
-            {"cat": "5. 形 (Shape)", "q": "Is it like a rectangle?", "kw": "rectangle"},
-            {"cat": "5. 形 (Shape)", "q": "Is it like a circle?", "kw": "circle"},
-            {"cat": "5. 形 (Shape)", "q": "Is it like a ball?", "kw": "ball"},
-            {"cat": "5. 形 (Shape)", "q": "Is it like a box?", "kw": "box"},
-            {"cat": "5. 形 (Shape)", "q": "Is it like a stick?", "kw": "stick"},
-
-            # 6. 動力
-            {"cat": "6. 動力 (Power)", "q": "Does it use battery?", "kw": "battery"},
-            {"cat": "6. 動力 (Power)", "q": "Does it use electricity?", "kw": "electricity"},
-            {"cat": "6. 動力 (Power)", "q": "Does it use gas?", "kw": "gas"},
-            {"cat": "6. 動力 (Power)", "q": "Does it use fire?", "kw": "fire"},
-            {"cat": "6. 動力 (Power)", "q": "Does it use water?", "kw": "water"},
-
-            # 7. 特徴
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have numbers?", "kw": "numbers"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have letters?", "kw": "letters"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have pictures?", "kw": "pictures"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a hole?", "kw": "hole"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a handle?", "kw": "handle"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a door?", "kw": "door"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have doors?", "kw": "doors"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a lid?", "kw": "lid"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have legs?", "kw": "legs"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have arms?", "kw": "arms"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a neck?", "kw": "neck"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a face?", "kw": "face"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a head?", "kw": "head"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a screen?", "kw": "screen"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have wheels?", "kw": "wheels"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a string?", "kw": "string"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have a cord?", "kw": "cord"},
-            {"cat": "7. 特徴 (Feature)", "q": "Does it have bones?", "kw": "bones"},
-
-            # 8. 用途
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it for leisure?", "kw": "leisure"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it for work?", "kw": "work"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it for life?", "kw": "life"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it with your hand?", "kw": "your hand"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it with your both hands?", "kw": "both hands"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it every day?", "kw": "every day"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it all seasons?", "kw": "all seasons"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it to do something?", "kw": "do something"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it to get something?", "kw": "get something"},
-            {"cat": "8. 用途 (Usage)", "q": "Do you use it not to get something?", "kw": "not to get something"},
-        ]
+        # ★ JSONファイルからデータを取得 ★
+        TRAINING_MENU = training_data
 
         st.markdown('<p class="category-label">▼ Mission List: 順番に読み上げてください</p>', unsafe_allow_html=True)
 
@@ -380,10 +296,11 @@ elif st.session_state.page == 'game':
         found_next = False
         current_display_cat = ""
 
+        # JSONデータ内のキー名は "category", "question", "keyword" と想定
         for task in TRAINING_MENU:
-            cat = task["cat"]
-            kw = task["kw"]
-            q_text = task["q"]
+            cat = task.get("category", "Other")
+            kw = task.get("keyword", "")
+            q_text = task.get("question", "")
             
             # カテゴリが変わったら見出しを入れる
             if cat != current_display_cat:
@@ -453,10 +370,11 @@ elif st.session_state.page == 'game':
                 
                 # --- マッチングロジック ---
                 if current_mode_is_beginner:
-                    # 初級者モード: 定義したTRAINING_MENUから探す
+                    # 初級者モード: JSONのトレーニングデータから探す
                     for task in TRAINING_MENU:
-                        t_kw = task["kw"]
-                        if t_kw in clean_input or normalize_text(task["q"]) in clean_input:
+                        t_kw = task.get("keyword", "")
+                        t_q = task.get("question", "")
+                        if t_kw in clean_input or normalize_text(t_q) in clean_input:
                             search_keyword = t_kw
                             break
                 else:
