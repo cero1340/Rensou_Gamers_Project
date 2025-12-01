@@ -1,114 +1,112 @@
 {
-  "1_場所": {
+  "1. 場所 (Place)": {
     "question": "Can you find it...",
     "options": {
-      "in the house": { "keyword": "house", "level": 1 },
-      "outside": { "keyword": "outside", "level": 1 },
-      "at a convenience store": { "keyword": "convenience", "level": 1 },
-      "in the kitchen": { "keyword": "kitchen", "level": 2 },
-      "in the living room": { "keyword": "living", "level": 2 },
-      "in the bedroom": { "keyword": "bed room", "level": 2 },
-      "in the bathroom": { "keyword": "bath", "level": 2 },
-      "at an electronics store": { "keyword": "electronics store", "level": 2 },
-      "at a 100 yen shop": { "keyword": "100 yen", "level": 2 },
-      "in a school": { "keyword": "school", "level": 2 },
-      "in an office": { "keyword": "office", "level": 2 }
+      "家の中": { "keyword": "house", "level": 1 },
+      "外": { "keyword": "outside", "level": 1 },
+      "空": { "keyword": "sky", "level": 2 },
+      "コンビニ": { "keyword": "convenience", "level": 1 },
+      "100円ショップ": { "keyword": "100", "level": 2 },
+      "電気屋": { "keyword": "electronics store", "level": 2 },
+      "ホームセンター": { "keyword": "home center", "level": 2 },
+      "Amazon": { "keyword": "amazon", "level": 2 }
     }
   },
-  "2_素材": {
+  "2. 素材 (Material)": {
     "question": "Is it made of...",
     "options": {
-      "metal": { "keyword": "metal", "level": 1 },
-      "plastic": { "keyword": "plastic", "level": 1 },
-      "wood": { "keyword": "wood", "level": 1 },
-      "glass": { "keyword": "glass", "level": 2 },
-      "paper": { "keyword": "paper", "level": 2 },
-      "cloth": { "keyword": "cloth", "level": 2 },
-      "leather": { "keyword": "leather", "level": 2 },
-      "rubber": { "keyword": "rubber", "level": 2 },
-      "ceramic": { "keyword": "ceramic", "level": 2 }
+      "金属": { "keyword": "metal", "level": 1 },
+      "プラスチック": { "keyword": "plastic", "level": 1 },
+      "紙": { "keyword": "paper", "level": 2 },
+      "布": { "keyword": "cloth", "level": 2 },
+      "木": { "keyword": "wood", "level": 1 },
+      "ガラス": { "keyword": "glass", "level": 2 },
+      "革": { "keyword": "leather", "level": 2 }
     }
   },
-  "3_大きさ": {
+  "3. 大きさ (Size)": {
     "question": "Is it bigger than...",
     "options": {
-      "your hand": { "keyword": "bigger than your hand", "level": 1 },
-      "your head": { "keyword": "bigger than your head", "level": 1 },
-      "you": { "keyword": "bigger than you", "level": 1 },
-      "your finger": { "keyword": "bigger than your finger", "level": 2 }
+      "目より大きい": { "keyword": "bigger than your eye", "level": 2 },
+      "指より大きい": { "keyword": "bigger than your finger", "level": 2 },
+      "手より大きい": { "keyword": "bigger than your hand", "level": 1 },
+      "頭より大きい": { "keyword": "bigger than your head", "level": 1 },
+      "人間より大きい": { "keyword": "bigger than you", "level": 1 }
     }
   },
-  "4_色": {
+  "4. 色 (Color)": {
     "question": "Is it...",
     "options": {
-      "white": { "keyword": "white", "level": 1 },
-      "black": { "keyword": "black", "level": 1 },
-      "colorful": { "keyword": "colorful", "level": 1 },
-      "red": { "keyword": "red", "level": 2 },
-      "blue": { "keyword": "blue", "level": 2 },
-      "green": { "keyword": "green", "level": 2 },
-      "yellow": { "keyword": "yellow", "level": 2 },
-      "brown": { "keyword": "brown", "level": 2 },
-      "silver": { "keyword": "silver", "level": 2 },
-      "gold": { "keyword": "gold", "level": 2 }
+      "白": { "keyword": "white", "level": 1 },
+      "黒": { "keyword": "black", "level": 1 },
+      "赤": { "keyword": "red", "level": 2 },
+      "銀色": { "keyword": "silver", "level": 2 },
+      "青": { "keyword": "blue", "level": 2 },
+      "緑": { "keyword": "green", "level": 2 },
+      "茶色": { "keyword": "brown", "level": 2 },
+      "黄色": { "keyword": "yellow", "level": 2 },
+      "金色": { "keyword": "ゴールド", "level": 2 }
     }
   },
-  "5_形": {
+  "5. 形 (Shape)": {
     "question": "Is it like a...",
     "options": {
-      "box": { "keyword": "box", "level": 1 },
-      "ball": { "keyword": "ball", "level": 1 },
-      "stick": { "keyword": "stick", "level": 1 },
-      "circle": { "keyword": "circle", "level": 2 },
-      "square": { "keyword": "square", "level": 2 },
-      "triangle": { "keyword": "triangle", "level": 2 },
-      "rectangle": { "keyword": "rectangle", "level": 2 },
-      "sheet": { "keyword": "sheet", "level": 2 }
+      "丸い感じ": { "keyword": "round", "level": 2 },
+      "三角形": { "keyword": "triangle", "level": 2 },
+      "正方形": { "keyword": "square", "level": 2 },
+      "長方形": { "keyword": "rectangle", "level": 2 },
+      "円形": { "keyword": "circle", "level": 2 },
+      "ボール状": { "keyword": "ball", "level": 1 },
+      "箱型": { "keyword": "box", "level": 1 },
+      "棒状": { "keyword": "stick", "level": 1 }
     }
   },
-  "6_動力": {
+  "6. 動力 (Power)": {
     "question": "Does it use...",
     "options": {
-      "electricity": { "keyword": "electricity", "level": 1 },
-      "battery": { "keyword": "battery", "level": 1 },
-      "fire": { "keyword": "fire", "level": 2 },
-      "gas": { "keyword": "gas", "level": 2 },
-      "water": { "keyword": "water", "level": 2 },
-      "ink": { "keyword": "ink", "level": 2 }
+      "電池": { "keyword": "battery", "level": 1 },
+      "電気": { "keyword": "electricity", "level": 1 },
+      "ガス": { "keyword": "gas", "level": 2 },
+      "火": { "keyword": "fire", "level": 2 },
+      "水": { "keyword": "water", "level": 2 }
     }
   },
-  "7_特徴": {
+  "7. 特徴 (Feature)": {
     "question": "Does it have...",
     "options": {
-      "buttons": { "keyword": "buttons", "level": 1 },
-      "a screen": { "keyword": "screen", "level": 1 },
-      "a cord": { "keyword": "cord", "level": 1 },
-      "a handle": { "keyword": "handle", "level": 2 },
-      "a door": { "keyword": "door", "level": 2 },
-      "a lid": { "keyword": "lid", "level": 2 },
-      "wheels": { "keyword": "wheels", "level": 2 },
-      "legs": { "keyword": "legs", "level": 2 },
-      "numbers": { "keyword": "numbers", "level": 2 },
-      "letters": { "keyword": "letters", "level": 2 },
-      "a hole": { "keyword": "hole", "level": 2 }
+      "数字": { "keyword": "numbers", "level": 2 },
+      "文字": { "keyword": "letters", "level": 2 },
+      "絵・写真": { "keyword": "pictures", "level": 2 },
+      "穴": { "keyword": "hole", "level": 2 },
+      "取っ手": { "keyword": "handle", "level": 2 },
+      "ドア・扉": { "keyword": "door", "level": 2 },
+      "複数のドア": { "keyword": "doors", "level": 2 },
+      "フタ": { "keyword": "lid", "level": 2 },
+      "足": { "keyword": "legs", "level": 2 },
+      "腕": { "keyword": "arms", "level": 2 },
+      "首": { "keyword": "neck", "level": 2 },
+      "顔": { "keyword": "face", "level": 2 },
+      "頭": { "keyword": "head", "level": 2 },
+      "画面": { "keyword": "screen", "level": 1 },
+      "車輪": { "keyword": "wheels", "level": 2 },
+      "ひも": { "keyword": "string", "level": 2 },
+      "コード": { "keyword": "cord", "level": 1 },
+      "骨": { "keyword": "bones", "level": 2 }
     }
   },
-  "8_用途": {
+  "8. 用途 (Usage)": {
     "question": "Do you use it...",
     "options": {
-      "for work": { "keyword": "work", "level": 1 },
-      "for life": { "keyword": "life", "level": 1 },
-      "every day": { "keyword": "every day", "level": 1 },
-      "for leisure": { "keyword": "leisure", "level": 2 },
-      "to clean": { "keyword": "to clean", "level": 2 },
-      "to cook": { "keyword": "to cook", "level": 2 },
-      "to eat": { "keyword": "to eat", "level": 2 },
-      "to drink": { "keyword": "to drink", "level": 2 },
-      "to write": { "keyword": "to write", "level": 2 },
-      "to cut": { "keyword": "to cut", "level": 2 },
-      "to play": { "keyword": "to play", "level": 2 },
-      "to study": { "keyword": "to study", "level": 2 },
-      "to relax": { "keyword": "to relax", "level": 2 }
+      "遊びで": { "keyword": "leisure", "level": 2 },
+      "仕事で": { "keyword": "work", "level": 1 },
+      "生活で": { "keyword": "life", "level": 1 },
+      "手を使って": { "keyword": "with your hand", "level": 1 },
+      "両手を使って": { "keyword": "with your both hands", "level": 2 },
+      "毎日": { "keyword": "every day", "level": 1 },
+      "一年中": { "keyword": "all season", "level": 2 },
+      "何かをするために": { "keyword": "do something", "level": 2 },
+      "何かを得るために": { "keyword": "get something", "level": 2 },
+      "得ないために": { "keyword": "not to get something", "level": 2 }
     }
   }
 }
