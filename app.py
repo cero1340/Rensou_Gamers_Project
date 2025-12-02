@@ -100,9 +100,16 @@ def load_json(filename):
         try:
             with open(filename, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except Exception:
+        except json.JSONDecodeError as e:
+            # ★ここでエラー内容を画面に出す！
+            st.error(f"⚠️ {filename} の中身が壊れています！\n場所: {e}")
             return None
-    return None
+        except Exception as e:
+            st.error(f"⚠️ {filename} を読み込めませんでした: {e}")
+            return None
+    else:
+        st.error(f"⚠️ {filename} が見つかりません。")
+        return None
 
 def normalize_text(text):
     if not text: return ""
