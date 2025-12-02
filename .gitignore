@@ -22,6 +22,7 @@ backup_v1_faundation/
 *_backup.py
 *_backup.lua
 *_backup.json
+*_backup.md
 
 # --- 仮想環境（念のため確認） ---
 .venv/
