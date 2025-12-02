@@ -1,0 +1,352 @@
+[
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo en la casa?",
+    "keyword": "house"
+  },
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo afuera?",
+    "keyword": "outside"
+  },
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo en el cielo?",
+    "keyword": "sky"
+  },
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo en una tienda de conveniencia?",
+    "keyword": "convenience store"
+  },
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo en una tienda de cien yenes?",
+    "keyword": "100 shop"
+  },
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo en una tienda de electrónica?",
+    "keyword": "electronics store"
+  },
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo en una tienda de bricolaje?",
+    "keyword": "home center"
+  },
+  {
+    "category": "1. 場所 (Place)",
+    "question": "¿Puedes encontrarlo en Amazon?",
+    "keyword": "amazon"
+  },
+  {
+    "category": "2. 素材 (Material)",
+    "question": "¿Está hecho de metal?",
+    "keyword": "metal"
+  },
+  {
+    "category": "2. 素材 (Material)",
+    "question": "¿Está hecho de plástico?",
+    "keyword": "plastic"
+  },
+  {
+    "category": "2. 素材 (Material)",
+    "question": "¿Está hecho de papel?",
+    "keyword": "paper"
+  },
+  {
+    "category": "2. 素材 (Material)",
+    "question": "¿Está hecho de tela?",
+    "keyword": "cloth"
+  },
+  {
+    "category": "2. 素材 (Material)",
+    "question": "¿Está hecho de madera?",
+    "keyword": "wood"
+  },
+  {
+    "category": "2. 素材 (Material)",
+    "question": "¿Está hecho de vidrio?",
+    "keyword": "glass"
+  },
+  {
+    "category": "2. 素材 (Material)",
+    "question": "¿Está hecho de cuero?",
+    "keyword": "leather"
+  },
+  {
+    "category": "3. 大きさ (Size)",
+    "question": "¿Es más grande que tu ojo?",
+    "keyword": "your eye"
+  },
+  {
+    "category": "3. 大きさ (Size)",
+    "question": "¿Es más grande que tu dedo?",
+    "keyword": "your finger"
+  },
+  {
+    "category": "3. 大きさ (Size)",
+    "question": "¿Es más grande que tu mano?",
+    "keyword": "your hand"
+  },
+  {
+    "category": "3. 大きさ (Size)",
+    "question": "¿Es más grande que tu cabeza?",
+    "keyword": "your head"
+  },
+  {
+    "category": "3. 大きさ (Size)",
+    "question": "¿Es más grande que tú?",
+    "keyword": "you"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es blanco?",
+    "keyword": "white"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es negro?",
+    "keyword": "black"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es rojo?",
+    "keyword": "red"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es plateado?",
+    "keyword": "silver"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es azul?",
+    "keyword": "blue"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es verde?",
+    "keyword": "green"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es marrón?",
+    "keyword": "brown"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es amarillo?",
+    "keyword": "yellow"
+  },
+  {
+    "category": "4. 色 (Color)",
+    "question": "¿Es dorado?",
+    "keyword": "gold"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es redondo?",
+    "keyword": "round"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es como un triángulo?",
+    "keyword": "triangle"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es como un cuadrado?",
+    "keyword": "square"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es como un rectángulo?",
+    "keyword": "rectangle"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es como un círculo?",
+    "keyword": "circle"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es como una pelota?",
+    "keyword": "ball"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es como una caja?",
+    "keyword": "box"
+  },
+  {
+    "category": "5. 形 (Shape)",
+    "question": "¿Es como un palo?",
+    "keyword": "stick"
+  },
+  {
+    "category": "6. 動力 (Power)",
+    "question": "¿Usa batería?",
+    "keyword": "battery"
+  },
+  {
+    "category": "6. 動力 (Power)",
+    "question": "¿Usa electricidad?",
+    "keyword": "electricity"
+  },
+  {
+    "category": "6. 動力 (Power)",
+    "question": "¿Usa gas?",
+    "keyword": "gas"
+  },
+  {
+    "category": "6. 動力 (Power)",
+    "question": "¿Usa fuego?",
+    "keyword": "fire"
+  },
+  {
+    "category": "6. 動力 (Power)",
+    "question": "¿Usa agua?",
+    "keyword": "water"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene números?",
+    "keyword": "numbers"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene letras?",
+    "keyword": "letters"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene imágenes?",
+    "keyword": "pictures"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene un agujero?",
+    "keyword": "hole"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene un mango?",
+    "keyword": "handle"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene una puerta?",
+    "keyword": "door"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene puertas?",
+    "keyword": "doors"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene una tapa?",
+    "keyword": "lid"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene patas?",
+    "keyword": "legs"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene brazos?",
+    "keyword": "arms"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene cuello?",
+    "keyword": "neck"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene cara?",
+    "keyword": "face"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene cabeza?",
+    "keyword": "head"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene una pantalla?",
+    "keyword": "screen"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene ruedas?",
+    "keyword": "wheels"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene una cuerda?",
+    "keyword": "string"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene un cable?",
+    "keyword": "cord"
+  },
+  {
+    "category": "7. 特徴 (Feature)",
+    "question": "¿Tiene huesos?",
+    "keyword": "bones"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas para divertirte?",
+    "keyword": "leisure"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas para el trabajo?",
+    "keyword": "work"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas para la vida?",
+    "keyword": "life"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas con tu mano?",
+    "keyword": "your hand"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas con ambas manos?",
+    "keyword": "both hands"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas todos los días?",
+    "keyword": "every day"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas en todas las estaciones?",
+    "keyword": "all seasons"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas para hacer algo?",
+    "keyword": "do something"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas para conseguir algo?",
+    "keyword": "get something"
+  },
+  {
+    "category": "8. 用途 (Usage)",
+    "question": "¿Lo usas para no conseguir algo?",
+    "keyword": "not to get something"
+  }
+]
