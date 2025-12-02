@@ -9,7 +9,7 @@ import re
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 JSON_FILE = os.path.join(BASE_DIR, "microwave_data.json")
-TEMPLATE_FILE = os.path.join(BASE_DIR, "questions_template.json")
+TEMPLATE_FILE = os.path.join(BASE_DIR, "Questions_template.json")
 
 # ★ここが変更点: ファイル名を固定せず、言語ごとに用意する
 TRAINING_FILE_EN = os.path.join(BASE_DIR, "training_data_en.json")
