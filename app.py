@@ -4,11 +4,15 @@ import os
 import re
 
 # ==========================================
-# 1. 設定エリア
+# 1. 設定エリア (ここを修正！)
 # ==========================================
-JSON_FILE = "microwave_data.json"
-TEMPLATE_FILE = "questions_template.json"
-TRAINING_FILE = "training_data.json"
+# app.py があるフォルダの場所を特定する
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# その場所を基準にしてファイル名を指定する (これで迷子にならない)
+JSON_FILE = os.path.join(BASE_DIR, "microwave_data.json")
+TEMPLATE_FILE = os.path.join(BASE_DIR, "questions_template.json")
+TRAINING_FILE = os.path.join(BASE_DIR, "training_data.json")
 
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
