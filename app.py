@@ -17,7 +17,7 @@ TRAINING_FILE = os.path.join(BASE_DIR, "training_data.json")
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
 # ★これを追加して、画面にファイル一覧を表示させる！
-st.write("📂 フォルダの中身:", os.listdir(BASE_DIR))
+# st.write("📂 フォルダの中身:", os.listdir(BASE_DIR))
 
 # ==========================================
 # ★ CSS定義
