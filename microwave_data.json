@@ -5,6 +5,8 @@
   "response_map": {
     "yes": "yes.wav",
     "that's a good question yes": "strong_yes.wav",
+    "amazing yes": "amazing_question_yes.wav",
+    "yes yes yes": "triple_yes.wav",
     "yes of course": "yes_ofcourse.wav",
     "si": "si.wav",
     "no": "no.wav",
@@ -18,6 +20,7 @@
     "大部分はイエス": "big_partial_yes.wav",
     "部分的にはイエス": "partial_yes.wav", 
     "close": "close.wav",
+    "good try but no": "good_try_but_no.wav",
     "correct": "correct.wav"
   },
   
@@ -241,7 +244,7 @@
       "todas las estaciones": "yes",
       "to do something": "yes",
       "hacer algo": "si",
-      "to eat": "yes",
+      "to eat": "usually yes",
       "to drink": "no",
       "to write": "no",
       "to read": "no",
@@ -267,12 +270,12 @@
       "to move": "no",
       "to buy": "no",
       "to play": "no",
-      "to cook": "yes",
+      "to cook": "yes yes yes",
       "to relax": "no",
       "to cool": "no",
-      "to heat up": "yes",
-      "to warm up": "yes",
-      "to reheat": "yes"
+      "to heat up": "that's a good question yes",
+      "to warm up": "that's a good question yes",
+      "to reheat": "that's a good question yes"
     }
   }
 }
