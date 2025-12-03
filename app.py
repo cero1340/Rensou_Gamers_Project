@@ -342,7 +342,7 @@ else:
                         "USUALLY_YES": "Usually Yes (たいていそう)",
                         "DEPENS": "It depends (場合による)", 
                         "SOME_PEOPLE_USE": "Some people use it (使う人もいる)",
-                        "SOME_ARE_YES": "Some are Yes (一部はイエス)", 
+                        "SOME_ARE_YES": "Some are Yes (気にするな！)", 
                         "CLOSE": "Close! (惜しい！)"
                     }
                     display_answer = display_map.get(raw_answer, raw_answer)
