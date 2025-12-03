@@ -86,7 +86,7 @@
       "grass": "部分的にはイエス",
       "vidrio": "部分的にはイエス",
       "rubber": "no",
-      "ceramic": "no"
+      "stone": "no"
     },
     "category_size": {
       "bigger than your hand": "yes",
@@ -261,7 +261,11 @@
       "to buy": "no",
       "to play": "no",
       "to cook": "yes",
-      "to relax": "no"
+      "to relax": "no",
+      "to cool": "no",
+      "to heat up": "yes",
+      "to warm up": "yes",
+      "to reheat": "yes"
     }
   }
 }
