@@ -186,7 +186,7 @@ with st.sidebar:
 st.title(f"🔒 連想 Gamers ({lang_select})")
 
 # ==========================================
-# ★修正: パターンC（誠実なアドバイス型）のデザイン
+# ★修正: Pattern C (誠実なアドバイス型 - 改行調整版)
 # ==========================================
 st.markdown("""
 <div style="
@@ -202,12 +202,12 @@ st.markdown("""
         ℹ️ Before you start
     </h3>
     <p style="margin-top: 15px; line-height: 1.6;">
-        <b>WCT（連想思考）</b>の習得には、脳のスタミナを使います。
+        WCT（連想思考）の習得には、脳のスタミナを使います。
     </p>
     <p style="line-height: 1.6;">
         もしかすると、初級モードのボリュームに圧倒されるかもしれません。<br>
         ですが、安心してください。<br>
-        それは <strong style="color: #b2dfdb; border-bottom: 1px dashed #b2dfdb;">「英語で【考え】そして【伝える】ために、最低限必要な量」</strong> <br>
+        それは <strong style="color: #b2dfdb; border-bottom: 1px dashed #b2dfdb;">「英語で【考え】そして【伝える】ために、最低限必要な量」</strong><br>
         を厳選した結果です。
     </p>
     <p style="line-height: 1.6;">
