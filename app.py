@@ -179,6 +179,24 @@ with st.sidebar:
 
 st.title(f"🔒 連想 Gamers ({lang_select})")
 
+# ==========================================
+# ★追加: 門番（Gatekeeper）警告メッセージ
+# ==========================================
+st.error("""
+**【 WARNING: Read before Enter 】**
+
+これより先は、**WCT (Word Chain Thinking)** 習得のための「高負荷トレーニング」エリアです。
+
+初心者は「初級モードの量が多すぎる」と感じるかもしれません。
+しかし、それは**「英語を話すために最低限必要な筋肉」**に過ぎません。
+
+上級モード（実戦）では、その筋肉をフル活用して「論理の迷宮」に挑みます。
+初級レベルで音を上げるなら、この先に進んでも時間の無駄です。
+
+**「本気で変わりたい」意志のある方のみ、パスワードを入力してください。**
+""")
+# ==========================================
+
 # パスワード認証
 SECRET_PASSWORD_VAL = st.secrets.get("SECRET_PASSWORD", "2025") if os.environ.get("STREAMLIT_ENV") == "CLOUD" else "2025"
 password = st.text_input("Password", type="password")
