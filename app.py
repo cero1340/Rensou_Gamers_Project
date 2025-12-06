@@ -11,14 +11,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 JSON_FILE = os.path.join(BASE_DIR, "microwave_data.json")
 TEMPLATE_FILE = os.path.join(BASE_DIR, "Questions_template.json")
 
-# ★ここが変更点: ファイル名を固定せず、言語ごとに用意する
+# 言語別ファイル
 TRAINING_FILE_EN = os.path.join(BASE_DIR, "training_data_en.json")
 TRAINING_FILE_ES = os.path.join(BASE_DIR, "training_data_es.json")
 
 st.set_page_config(page_title="連想 Training", page_icon="🎮")
 
 # ==========================================
-# ★ CSS定義 (変更なし)
+# ★ CSS定義
 # ==========================================
 st.markdown("""
 <style>
@@ -151,7 +151,6 @@ if "current_lang" not in st.session_state:
 with st.sidebar:
     st.title("Settings")
     
-    # ★言語選択を追加
     lang_select = st.radio("Language:", ["🇺🇸 English", "🇪🇸 Español"])
     
     # 言語が変わったらリセット
@@ -160,10 +159,17 @@ with st.sidebar:
         st.session_state.training_cat_index = 0
         st.session_state.mistake_count = 0
         st.session_state.last_feedback = ""
-        st.session_state.current_category = "" # カテゴリもリセット
+        st.session_state.current_category = ""
         st.rerun()
 
     st.markdown("---")
+    
+    # ★追加: サイドバーでの厳重注意
+    st.warning("""
+    **【WCT Warning】**
+    初級モードは脳のスタミナを激しく消費します。
+    「全問クリア」を目的にせず、1日1〜2カテゴリを「完璧に」こなすことを推奨します。
+    """)
     
     mode = st.radio("Mode Select:", ["🔰 初級者 (Training)", "🔥 上級者 (Advanced)"])
     
@@ -179,12 +185,44 @@ with st.sidebar:
 
 st.title(f"🔒 連想 Gamers ({lang_select})")
 
-
+# ==========================================
+# ★修正: HTML/CSSで確実にデザインする警告エリア (Gatekeeper)
+# ==========================================
+st.markdown("""
+<div style="
+    background-color: #3e2723; 
+    color: #ffccbc; 
+    padding: 20px; 
+    border-radius: 10px; 
+    border: 2px solid #ff5722; 
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+">
+    <h3 style="color: #ff5722; margin-top: 0; border-bottom: 1px solid #ff5722; padding-bottom: 10px; font-family: 'Helvetica', sans-serif;">
+        ⚠️ WARNING: Read before Enter
+    </h3>
+    <p style="margin-top: 15px; line-height: 1.6;">
+        これより先は、<b>WCT (Word Chain Thinking)</b> 習得のための「高負荷トレーニング」エリアです。
+    </p>
+    <p style="line-height: 1.6;">
+        初心者は「初級モードの量が多すぎる」と感じるかもしれません。<br>
+        しかし、それは <strong style="color: #ffab91; font-size: 1.1em; text-decoration: underline decoration-color #ff5722;">「英語を話すために最低限必要な筋肉」</strong> に過ぎません。
+    </p>
+    <p style="line-height: 1.6;">
+        上級モード（実戦）では、その筋肉をフル活用して「論理の迷宮」に挑みます。<br>
+        初級レベルで音を上げるなら、この先に進んでも時間の無駄です。
+    </p>
+    <p style="font-weight: bold; color: #ff5722; margin-top: 20px; text-align: center; font-size: 1.1em;">
+        「本気で変わりたい」意志のある方のみ、パスワードを入力してください。
+    </p>
+</div>
+""", unsafe_allow_html=True)
 
 # パスワード認証
 SECRET_PASSWORD_VAL = st.secrets.get("SECRET_PASSWORD", "2025") if os.environ.get("STREAMLIT_ENV") == "CLOUD" else "2025"
 password = st.text_input("Password", type="password")
 if password != SECRET_PASSWORD_VAL:
+    # パスワード違いの時はここでストップ
     st.stop()
 
 # ==========================================
@@ -196,14 +234,13 @@ if password != SECRET_PASSWORD_VAL:
 # ---------------------------------------------------------
 if mode == "🔰 初級者 (Training)":
     
-    # ★言語に応じてファイルを読み分ける
     if lang_select == "🇺🇸 English":
         training_data = load_json(TRAINING_FILE_EN)
     else:
         training_data = load_json(TRAINING_FILE_ES)
 
     if not training_data:
-        st.error(f"エラー: {lang_select} 用のトレーニングデータ(training_data_xx.json)が見つかりません。")
+        st.error(f"エラー: {lang_select} 用のトレーニングデータが見つかりません。")
         st.stop()
     
     categories = sorted(list(set(item["category"] for item in training_data)))
@@ -242,10 +279,27 @@ if mode == "🔰 初級者 (Training)":
         elif fb == "Almost":
             st.markdown('<div class="feedback-msg feedback-retry">もうちょいだ！ (Almost) 🔥</div>', unsafe_allow_html=True)
         elif fb == "Skip":
-            st.markdown('<div class="feedback-msg feedback-next">よし！次いこう！ (Next) 🚀</div>', unsafe_allow_html=True)
+            # ★修正: スキップ時の厳しいメッセージ
+            st.markdown("""
+            <div class="feedback-msg feedback-next" style="background-color: #ffebee; color: #c62828;">
+                <b>Logic Failed (強制終了)</b><br>
+                <span style="font-size: 16px;">思考が止まっています。運で当てようとせず、口を動かしてください。<br>Next Question. ➔</span>
+            </div>
+            """, unsafe_allow_html=True)
 
     else:
-        st.markdown("""<div class="question-box"><div class="question-text">🎉 Category Complete! 🎉</div></div>""", unsafe_allow_html=True)
+        # ★修正: カテゴリ完了時の厳しいメッセージ
+        st.markdown("""
+        <div class="question-box">
+            <div class="question-text">Category Complete.</div>
+            <p style="color: #666; margin-top: 10px;">
+            このカテゴリの「線（フレーズ）」は、<br>
+            もうあなたの脳内回路に焼き付きましたか？<br>
+            不安なら、何度でもやり直してください。
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         target_task = None
         if st.button("Retry this Category"):
             for t in current_tasks:
