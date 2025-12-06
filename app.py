@@ -164,7 +164,7 @@ with st.sidebar:
 
     st.markdown("---")
     
-    # ★追加: サイドバーでの厳重注意
+    # サイドバーでの注意喚起 (ここはシンプルなWarningのまま)
     st.warning("""
     **【WCT Warning】**
     初級モードは脳のスタミナを激しく消費します。
@@ -186,34 +186,34 @@ with st.sidebar:
 st.title(f"🔒 連想 Gamers ({lang_select})")
 
 # ==========================================
-# ★修正: HTML/CSSで確実にデザインする警告エリア (Gatekeeper)
+# ★修正: パターンC（誠実なアドバイス型）のデザイン
 # ==========================================
 st.markdown("""
 <div style="
-    background-color: #3e2723; 
-    color: #ffccbc; 
+    background-color: #455a64; 
+    color: #eceff1; 
     padding: 20px; 
     border-radius: 10px; 
-    border: 2px solid #ff5722; 
+    border-left: 6px solid #4db6ac; 
     margin-bottom: 25px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 ">
-    <h3 style="color: #ff5722; margin-top: 0; border-bottom: 1px solid #ff5722; padding-bottom: 10px; font-family: 'Helvetica', sans-serif;">
-        ⚠️ WARNING: Read before Enter
+    <h3 style="color: #4db6ac; margin-top: 0; font-family: 'Helvetica', sans-serif;">
+        ℹ️ Before you start
     </h3>
     <p style="margin-top: 15px; line-height: 1.6;">
-        これより先は、<b>WCT (Word Chain Thinking)</b> 習得のための「高負荷トレーニング」エリアです。
+        <b>WCT（連想思考）</b>の習得には、脳のスタミナを使います。
     </p>
     <p style="line-height: 1.6;">
-        初心者は「初級モードの量が多すぎる」と感じるかもしれません。<br>
-        しかし、それは <strong style="color: #ffab91; font-size: 1.1em; text-decoration: underline decoration-color #ff5722;">「英語を話すために最低限必要な筋肉」</strong> に過ぎません。
+        もしかすると、初級モードのボリュームに圧倒されるかもしれません。<br>
+        ですが、安心してください。それは <strong style="color: #b2dfdb; border-bottom: 1px dashed #b2dfdb;">「英語が話せるようになるために、最低限必要な量」</strong> を厳選した結果です。
     </p>
     <p style="line-height: 1.6;">
-        上級モード（実戦）では、その筋肉をフル活用して「論理の迷宮」に挑みます。<br>
-        初級レベルで音を上げるなら、この先に進んでも時間の無駄です。
+        一気にやる必要はありません。<br>
+        毎日少しずつ、確実に「自分の言葉」にしていきましょう。
     </p>
-    <p style="font-weight: bold; color: #ff5722; margin-top: 20px; text-align: center; font-size: 1.1em;">
-        「本気で変わりたい」意志のある方のみ、パスワードを入力してください。
+    <p style="font-weight: bold; color: #4db6ac; margin-top: 20px; text-align: right; font-size: 1.1em;">
+        本気で上達したいあなたを歓迎します。
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -222,7 +222,6 @@ st.markdown("""
 SECRET_PASSWORD_VAL = st.secrets.get("SECRET_PASSWORD", "2025") if os.environ.get("STREAMLIT_ENV") == "CLOUD" else "2025"
 password = st.text_input("Password", type="password")
 if password != SECRET_PASSWORD_VAL:
-    # パスワード違いの時はここでストップ
     st.stop()
 
 # ==========================================
@@ -279,7 +278,7 @@ if mode == "🔰 初級者 (Training)":
         elif fb == "Almost":
             st.markdown('<div class="feedback-msg feedback-retry">もうちょいだ！ (Almost) 🔥</div>', unsafe_allow_html=True)
         elif fb == "Skip":
-            # ★修正: スキップ時の厳しいメッセージ
+            # スキップ時の厳しいメッセージ
             st.markdown("""
             <div class="feedback-msg feedback-next" style="background-color: #ffebee; color: #c62828;">
                 <b>Logic Failed (強制終了)</b><br>
@@ -288,7 +287,7 @@ if mode == "🔰 初級者 (Training)":
             """, unsafe_allow_html=True)
 
     else:
-        # ★修正: カテゴリ完了時の厳しいメッセージ
+        # カテゴリ完了時の確認メッセージ
         st.markdown("""
         <div class="question-box">
             <div class="question-text">Category Complete.</div>
