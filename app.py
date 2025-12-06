@@ -206,7 +206,7 @@ st.markdown("""
     </p>
     <p style="line-height: 1.6;">
         もしかすると、初級モードのボリュームに圧倒されるかもしれません。<br>
-        ですが、安心してください。それは <strong style="color: #b2dfdb; border-bottom: 1px dashed #b2dfdb;">「英語が話せるようになるために、最低限必要な量」</strong> を厳選した結果です。
+        ですが、安心してください。それは <strong style="color: #b2dfdb; border-bottom: 1px dashed #b2dfdb;">「英語で"考え" "伝えられる"ために、最低限必要な量」</strong> を厳選した結果です。
     </p>
     <p style="line-height: 1.6;">
         一気にやる必要はありません。<br>
