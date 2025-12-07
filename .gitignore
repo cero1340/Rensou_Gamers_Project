@@ -13,6 +13,8 @@ __pycache__/
 current_question.txt
 next_wav_path.txt
 thinking_state.txt
+yes_history_left.txt
+yes_history_right.txt
 *.log
 
 # --- バックアップフォルダ（容量の節約） ---

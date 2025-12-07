@@ -8,7 +8,7 @@ local filter_name = "LocalVocal"
 local ai_open_source = "" 
 local ai_closed_source = ""
 
--- ★追加: 正解動画用の設定
+-- 正解動画用の設定
 local video_source_name = ""       -- OBS上の動画ソース名
 local video_trigger_file = ""      -- 監視するトリガーファイルパス
 
@@ -17,14 +17,14 @@ local thinking_state_file = ""
 local yup_sound_path = ""
 local last_path = ""
 local last_thinking = ""
-local last_video_trigger = ""      -- ★追加
+local last_video_trigger = ""
 
 local hotkey_id = obs.OBS_INVALID_HOTKEY_ID
 local connected_source_name = ""
-local connected_video_source_name = "" -- ★追加
+local connected_video_source_name = ""
 
 function script_description()
-    return "【Ver 2.1】AIシステム統合版：音声・口パク・正解動画(MP4)連携機能"
+    return "【Ver 2.2】AIシステム統合版：シーン切替時の自動再生防止対応"
 end
 
 function script_properties()
@@ -46,7 +46,7 @@ function script_properties()
     local p_ai_open = obs.obs_properties_add_list(props, "ai_open_source", "AI: 開いた口の画像", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
     populate_source_list(p_ai_open)
 
-    -- ★追加: 動画ソース選択
+    -- 動画ソース選択
     local p_video = obs.obs_properties_add_list(props, "video_source_name", "★正解動画(MP4)のソース", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
     populate_source_list(p_video)
 
@@ -67,14 +67,14 @@ end
 function script_update(settings)
     path_file_path = obs.obs_data_get_string(settings, "path_file_path")
     thinking_state_file = obs.obs_data_get_string(settings, "thinking_state_file")
-    video_trigger_file = obs.obs_data_get_string(settings, "video_trigger_file") -- ★追加
+    video_trigger_file = obs.obs_data_get_string(settings, "video_trigger_file")
     yup_sound_path = obs.obs_data_get_string(settings, "yup_sound_path")
     mic_source_name = obs.obs_data_get_string(settings, "mic_source_name")
     filter_name = obs.obs_data_get_string(settings, "filter_name")
     
     ai_open_source = obs.obs_data_get_string(settings, "ai_open_source")
     ai_closed_source = obs.obs_data_get_string(settings, "ai_closed_source")
-    video_source_name = obs.obs_data_get_string(settings, "video_source_name") -- ★追加
+    video_source_name = obs.obs_data_get_string(settings, "video_source_name")
 end
 
 -- フィルタ制御
@@ -116,23 +116,24 @@ function play_audio_file(filepath)
         local settings = obs.obs_source_get_settings(source)
         obs.obs_data_set_string(settings, "local_file", filepath)
         obs.obs_data_set_bool(settings, "close_when_inactive", false) 
-        obs.obs_data_set_bool(settings, "restart_on_activate", true) 
+        
+        -- ★修正: シーン切り替え等のアクティブ化で勝手に再生しないようにする
+        obs.obs_data_set_bool(settings, "restart_on_activate", false) 
+        
         obs.obs_source_update(source, settings)
-        obs.obs_source_media_restart(source)
+        obs.obs_source_media_restart(source) -- ここで明示的に再生するので音は鳴ります
         obs.obs_source_release(source)
         obs.obs_data_release(settings)
         obs.script_log(obs.LOG_INFO, "音声再生: " .. filepath)
     end
 end
 
--- ★追加: 動画再生関数
+-- 動画再生関数
 function play_video_source()
     local source = obs.obs_get_source_by_name(video_source_name)
     if source then
         obs.script_log(obs.LOG_INFO, "★動画再生開始: " .. video_source_name)
-        -- 表示ONにする
         set_source_visibility(video_source_name, true)
-        -- 最初から再生
         obs.obs_source_media_restart(source)
         obs.obs_source_release(source)
     end
@@ -156,10 +157,9 @@ function on_media_ended(calldata)
                 end
             end
 
-        -- B. ★追加: 動画ソースの場合
+        -- B. 動画ソースの場合
         elseif name == video_source_name then
             obs.script_log(obs.LOG_INFO, "★動画終了検知: 非表示にします")
-            -- 再生が終わったら非表示にする
             set_source_visibility(video_source_name, false)
         end
     end
@@ -219,7 +219,7 @@ function script_tick(seconds)
         end
     end
 
-    -- 3. ★追加: 動画トリガー監視
+    -- 3. 動画トリガー監視
     if video_trigger_file ~= "" then
         local file = io.open(video_trigger_file, "r")
         if file then
@@ -248,7 +248,7 @@ function script_tick(seconds)
         connected_source_name = ""
     end
 
-    -- 5. ★追加: イベントハンドラ接続 (動画ソース)
+    -- 5. イベントハンドラ接続 (動画ソース)
     if video_source_name ~= "" then
         local v_source = obs.obs_get_source_by_name(video_source_name)
         if v_source then
