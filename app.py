@@ -8,7 +8,8 @@ import re
 # ==========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-JSON_FILE = os.path.join(BASE_DIR, "microwave_data.json")
+# ★修正: アプリ専用のJSONファイルを読み込む
+JSON_FILE = os.path.join(BASE_DIR, "microwave_data_app.json")
 TEMPLATE_FILE = os.path.join(BASE_DIR, "Questions_template.json")
 
 # 言語別ファイル
@@ -119,7 +120,7 @@ data = load_json(JSON_FILE)
 template = load_json(TEMPLATE_FILE)
 
 if not data or not template:
-    st.error("エラー: microwave_data.json または questions_template.json が不足しています。")
+    st.error("エラー: microwave_data_app.json または questions_template.json が不足しています。")
     st.stop()
 
 
@@ -385,11 +386,16 @@ else:
             for keyword, answer_key in rules.items():
                 if keyword in clean_input:
                     found_key = keyword
+                    # ★修正: 新しいJSONではwavファイル名ではなく、直接タイプコード(YES/NO等)が返ってくる
+                    # そのため .replace(".wav", "") 処理は不要
                     raw_answer = data["response_map"].get(answer_key, answer_key)
+                    
+                    # リスト形式の場合の安全策
                     if isinstance(raw_answer, list):
                         raw_answer = raw_answer[0]
                     
-                    raw_answer = raw_answer.replace(".wav", "").upper()
+                    # 念のため大文字化
+                    raw_answer = str(raw_answer).upper()
                     
                     display_map = {
                         "YES": "Yes! (イエス)", 
@@ -397,12 +403,14 @@ else:
                         "PARTIAL_YES": "Partial Yes (部分的にイエス)",
                         "CORRECT": "Correct!! (正解！)", 
                         "USUALLY_YES": "Usually Yes (たいていそう)",
-                        "DEPENS": "It depends (場合による)", 
+                        "DEPENDS": "It depends (場合による)", # 修正: DEPENS -> DEPENDS
                         "SOME_PEOPLE_USE": "Some people use it (使う人もいる)",
                         "SOME_ARE_YES": "Some are Yes (気にするな！)", 
                         "CLOSE": "Close! (惜しい！)"
                     }
                     display_answer = display_map.get(raw_answer, raw_answer)
+                    
+                    # ポジティブ判定ロジック
                     is_positive = any(k in raw_answer for k in ["YES", "CORRECT", "PARTIAL", "USUALLY", "SOME"])
                     status = "success" if is_positive else "error"
                     
