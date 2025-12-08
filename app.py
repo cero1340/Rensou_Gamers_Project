@@ -399,13 +399,21 @@ else:
                     
                     display_map = {
                         "YES": "Yes! (イエス)", 
-                        "NO": "No. (ノー)", 
-                        "PARTIAL_YES": "Partial Yes (部分的にイエス)",
-                        "CORRECT": "Correct!! (正解！)", 
+                        "NO": "No. (ノー)",
+                        "SI_YES": "Si!(Yes)",
+                        "STRONG_YES": "That's a Good Question! イエス！",
+                        "YES_OF_COURSE": "もちろん！", 
+                        "PARTIAL_YES": "部分的にはイエス！",
+                        "BIG_PARTIAL_YES": "大部分はイエス！",
+                        "CORRECT": "大正解！おめでとう！！！", 
                         "USUALLY_YES": "Usually Yes (たいていそう)",
                         "DEPENDS": "It depends (場合による)", # 修正: DEPENS -> DEPENDS
                         "SOME_PEOPLE_USE": "Some people use it (使う人もいる)",
-                        "SOME_ARE_YES": "Some are Yes (気にするな！)", 
+                        "SOME_PEOPLE_CAN": "Some people can find it(見つけられる人もいる)",
+                        "SOME_ARE_YES": "Some are Yes (そういうのもある)",
+                        "SOME_ARE_YES_1": "Some are Yes(気に...)",
+                        "SOME_ARE_YES_2": "Some are Yes(気にす...)",
+                        "SOME_ARE_YES_3": "Some are Yes(気にするな！)", 
                         "CLOSE": "Close! (惜しい！)"
                     }
                     display_answer = display_map.get(raw_answer, raw_answer)
