@@ -165,7 +165,7 @@ with st.sidebar:
 
     st.markdown("---")
     
-    # サイドバーでの注意喚起 (ここはシンプルなWarningのまま)
+    # サイドバーでの注意喚起
     st.warning("""
     **【WCT Warning】**
     初級モードは脳のスタミナを激しく消費します。
@@ -249,8 +249,8 @@ if mode == "🔰 初級者 (Training)":
     
     # カテゴリ初期化
     if st.session_state.current_category not in categories:
-         st.session_state.current_category = categories[0]
-         
+          st.session_state.current_category = categories[0]
+          
     selected_cat = st.selectbox("カテゴリー選択", categories, index=categories.index(st.session_state.current_category))
 
     if selected_cat != st.session_state.current_category:
@@ -382,57 +382,64 @@ else:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         
         found_key = None
+        
+        # ★修正ポイント: 全ルールを取得して「文字数が長い順」に並べ替える
+        # これにより "bigger than your hand" (短いYES) より "bigger than your hand... right" (長いNO) が先にチェックされる
+        all_rules = []
         for category, rules in data["rules"].items():
             for keyword, answer_key in rules.items():
-                if keyword in clean_input:
-                    found_key = keyword
-                    # ★修正: 新しいJSONではwavファイル名ではなく、直接タイプコード(YES/NO等)が返ってくる
-                    # そのため .replace(".wav", "") 処理は不要
-                    raw_answer = data["response_map"].get(answer_key, answer_key)
-                    
-                    # リスト形式の場合の安全策
-                    if isinstance(raw_answer, list):
-                        raw_answer = raw_answer[0]
-                    
-                    # 念のため大文字化
-                    raw_answer = str(raw_answer).upper()
-                    
-                    display_map = {
-                        "YES": "Yes! (イエス)", 
-                        "NO": "No. (ノー)",
-                        "SI_YES": "Si!(Yes)",
-                        "STRONG_YES": "That's a Good Question! イエス！",
-                        "YES_OF_COURSE": "もちろん！", 
-                        "PARTIAL_YES": "部分的にはイエス！",
-                        "BIG_PARTIAL_YES": "大部分はイエス！",
-                        "CORRECT": "大正解！おめでとう！！！", 
-                        "USUALLY_YES": "Usually Yes (たいていそう)",
-                        "DEPENDS": "It depends (場合による)", # 修正: DEPENS -> DEPENDS
-                        "SOME_PEOPLE_USE": "Some people use it (使う人もいる)",
-                        "SOME_PEOPLE_CAN": "Some people can find it(見つけられる人もいる)",
-                        "SOME_ARE_YES": "Some are Yes (そういうのもある)",
-                        "SOME_ARE_YES_1": "Some are Yes(気に...)",
-                        "SOME_ARE_YES_2": "Some are Yes(気にす...)",
-                        "SOME_ARE_YES_3": "Some are Yes(気にするな！)", 
-                        "CLOSE": "Close! (惜しい！)"
-                    }
-                    display_answer = display_map.get(raw_answer, raw_answer)
-                    
-                    # ポジティブ判定ロジック
-                    is_positive = any(k in raw_answer for k in ["YES", "CORRECT", "PARTIAL", "USUALLY", "SOME"])
-                    status = "success" if is_positive else "error"
-                    
-                    st.session_state.chat_history.append({
-                        "role": "assistant", 
-                        "content": f"{display_answer}", 
-                        "status": status
-                    })
-                    
-                    if is_positive and found_key not in st.session_state.found_clues:
-                        st.session_state.found_clues.append(found_key)
-                    break 
-            if found_key:
-                break
+                all_rules.append((keyword, answer_key))
+        
+        # キーワードの文字数で降順ソート (長い順)
+        all_rules.sort(key=lambda x: len(x[0]), reverse=True)
+
+        for keyword, answer_key in all_rules:
+            if keyword in clean_input:
+                found_key = keyword
+                
+                raw_answer = data["response_map"].get(answer_key, answer_key)
+                
+                # リスト形式の場合の安全策
+                if isinstance(raw_answer, list):
+                    raw_answer = raw_answer[0]
+                
+                # 念のため大文字化
+                raw_answer = str(raw_answer).upper()
+                
+                display_map = {
+                    "YES": "Yes! (イエス)", 
+                    "NO": "No. (ノー)",
+                    "SI_YES": "Si!(Yes)",
+                    "STRONG_YES": "That's a Good Question! イエス！",
+                    "YES_OF_COURSE": "もちろん！", 
+                    "PARTIAL_YES": "部分的にはイエス！",
+                    "BIG_PARTIAL_YES": "大部分はイエス！",
+                    "CORRECT": "大正解！おめでとう！！！", 
+                    "USUALLY_YES": "Usually Yes (たいていそう)",
+                    "DEPENDS": "It depends (場合による)",
+                    "SOME_PEOPLE_USE": "Some people use it (使う人もいる)",
+                    "SOME_PEOPLE_CAN": "Some people can find it(見つけられる人もいる)",
+                    "SOME_ARE_YES": "Some are Yes (そういうのもある)",
+                    "SOME_ARE_YES_1": "Some are Yes(気に...)",
+                    "SOME_ARE_YES_2": "Some are Yes(気にす...)",
+                    "SOME_ARE_YES_3": "Some are Yes(気にするな！)", 
+                    "CLOSE": "Close! (惜しい！)"
+                }
+                display_answer = display_map.get(raw_answer, raw_answer)
+                
+                # ポジティブ判定ロジック
+                is_positive = any(k in raw_answer for k in ["YES", "CORRECT", "PARTIAL", "USUALLY", "SOME"])
+                status = "success" if is_positive else "error"
+                
+                st.session_state.chat_history.append({
+                    "role": "assistant", 
+                    "content": f"{display_answer}", 
+                    "status": status
+                })
+                
+                if is_positive and found_key not in st.session_state.found_clues:
+                    st.session_state.found_clues.append(found_key)
+                break 
         
         if not found_key:
             st.session_state.chat_history.append({
