@@ -103,17 +103,19 @@ def load_rules():
         print(f"★JSON読み込み失敗: {e}")
         return None
 
-# 回答検索関数
+# 回答検索関数（★修正済み：長いキーワード優先）
 def find_response(text, data):
     text = text.lower()
     text = re.sub(r'[^\w\s]', ' ', text) 
     text = re.sub(r'\s+', ' ', text).strip()
     
     rules = []
+    # ルールを全てリスト化
     for cat, items in data.get("rules", {}).items():
         for k, v in items.items():
             rules.append((k.lower(), v, cat))
     
+    # ★重要: キーワードの文字数で降順ソート（長い順）
     rules.sort(key=lambda x: len(x[0]), reverse=True)
     
     for k, v, cat in rules:
@@ -160,7 +162,7 @@ def manual_reaction_trigger(log_text, wav_name):
         is_reacting = False
 
 def main():
-    print("=== AI回答システム Ver 1.9 (履歴25行分割版) ===")
+    print("=== AI回答システム Ver 2.0 (判定ロジック修正済) ===")
     print("初期化中...")
 
     data = load_rules()
