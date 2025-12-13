@@ -162,7 +162,7 @@
       "caja": "that's a good question yes"
     },
     "category_power": {
-      "battery": "no",
+      "batteies": "no",
       "bateria": "no",
       "バッテリ": "no",
       "electricity": "yes of course",
@@ -235,7 +235,7 @@
       "vida": "si",
       "with your hand": "yes",
       "con tu mano": "si",     
-      "with your both hands": "yes",
+      "with both hands": "yes",
       "con ambas manos": "si",
       "every day": "depends",
       "todos los dias": "depends",
@@ -244,6 +244,7 @@
       "autumn": "yes",
       "winter": "yes",
       "all season": "yes",
+      "all seasons": "yes",
       "todas las estaciones": "yes",
       "to do something": "yes",
       "hacer algo": "si",
