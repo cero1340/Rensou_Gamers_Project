@@ -22,7 +22,7 @@
   {
     "category": "1. 場所 (Place)",
     "question": "Can you find it at the one hundred yen shop?",
-    "keyword": "100 shop"
+    "keyword": "100"
   },
   {
     "category": "1. 場所 (Place)",
@@ -36,7 +36,7 @@
   },
   {
     "category": "1. 場所 (Place)",
-    "question": "Can you find it at the Amazon?",
+    "question": "Can you find it on Amazon?",
     "keyword": "amazon"
   },
   {
@@ -186,8 +186,8 @@
   },
   {
     "category": "6. 動力 (Power)",
-    "question": "Does it use battery?",
-    "keyword": "battery"
+    "question": "Does it use batteies?",
+    "keyword": "batteies"
   },
   {
     "category": "6. 動力 (Power)",
@@ -311,7 +311,7 @@
   },
   {
     "category": "8. 用途 (Usage)",
-    "question": "Do you use it for life?",
+    "question": "Do you use it in daily life?",
     "keyword": "life"
   },
   {
@@ -321,7 +321,7 @@
   },
   {
     "category": "8. 用途 (Usage)",
-    "question": "Do you use it with your both hands?",
+    "question": "Do you use it with both hands?",
     "keyword": "both hands"
   },
   {

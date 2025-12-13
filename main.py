@@ -48,7 +48,7 @@ POSITIVE_WAVS = [
 # ★マニュアル操作設定
 # キー: (ログ用メモ, 再生するWAVファイル名)
 KEY_MAPPINGS = {
-    "num 1": ("そうだね！", "yes.wav"),
+    "num 1": ("そうだべ！", "soudabe.wav"),
     "num 2": ("たしかに", "usually_yes.wav"),
     "num 3": ("なるほど！", "strong_yes.wav"),
     "num 4": ("うーん...", "depends.wav"),

@@ -162,7 +162,7 @@
       "caja": "that's a good question yes"
     },
     "category_power": {
-      "battery": "no",
+      "batteies": "no",
       "bateria": "no",
       "バッテリ": "no",
       "electricity": "yes of course",
@@ -231,11 +231,11 @@
       "divertirte": "no",
       "work": "some people use it for work",
       "trabajo": "some people use it for work",
-      "life": "that's a good question yes",
+      "daily life": "that's a good question yes",
       "vida": "si",
       "with your hand": "yes",
       "con tu mano": "si",     
-      "with your both hands": "yes",
+      "with both hands": "yes",
       "con ambas manos": "si",
       "every day": "depends",
       "todos los dias": "depends",
