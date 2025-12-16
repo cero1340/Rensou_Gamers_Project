@@ -17,7 +17,7 @@ VIDEO_TRIGGER_FILE = "video_trigger.txt"
 # ★変更: 履歴ファイルを左右2つに分ける
 HISTORY_FILE_LEFT = "yes_history_left.txt"   # 左列用
 HISTORY_FILE_RIGHT = "yes_history_right.txt" # 右列用
-MAX_HISTORY_LINES = 25 # ★変更: 25行たまったら右列に行く（合計50行対応）
+MAX_HISTORY_LINES = 20 # ★変更: 25行たまったら右列に行く（合計50行対応）
 
 AUDIO_DIR_NAME = "audio"
 DEFAULT_WAV = "none.wav"
