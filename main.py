@@ -29,6 +29,7 @@ yes_history_list = []
 POSITIVE_WAVS = [
     "yes.wav",
     "strong_yes.wav",
+    "dasai_strong_yes.wav",
     "amazing_question_yes.wav",
     "triple_yes.wav",
     "yes_ofcourse.wav",
