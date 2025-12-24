@@ -1,0 +1,8 @@
+> 1. 場所: "Can you find it...?"
+  2. 素材: "Is it made of... ?"
+  3. 大きさ: "Is it bigger than... ?"
+  4. 色: "Is it... ?"
+  5. 形: "Is it like a... ?"
+  6. 動力: "Does it use... ?"
+  7. 特徴: "Does it have... ?"
+  8. 用途: "Do you use it... ?"
