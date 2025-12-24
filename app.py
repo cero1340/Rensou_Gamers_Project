@@ -284,8 +284,8 @@ if mode == "🔰 初級者 (Training)":
             # スキップ時の厳しいメッセージ
             st.markdown("""
             <div class="feedback-msg feedback-next" style="background-color: #ffebee; color: #c62828;">
-                <b>Logic Failed (強制終了)</b><br>
-                <span style="font-size: 16px;">よし！次いこう！<br>Next Question. ➔</span>
+                <b>よし！よく頑張ったね！</b><br>
+                <span style="font-size: 16px;">次いってみよう！<br>Next Question. ➔</span>
             </div>
             """, unsafe_allow_html=True)
 
