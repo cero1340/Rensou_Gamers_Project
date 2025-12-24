@@ -285,7 +285,7 @@ if mode == "🔰 初級者 (Training)":
             st.markdown("""
             <div class="feedback-msg feedback-next" style="background-color: #ffebee; color: #c62828;">
                 <b>Logic Failed (強制終了)</b><br>
-                <span style="font-size: 16px;">思考が止まっています。運で当てようとせず、口を動かしてください。<br>Next Question. ➔</span>
+                <span style="font-size: 16px;">よし！次いこう！<br>Next Question. ➔</span>
             </div>
             """, unsafe_allow_html=True)
 
