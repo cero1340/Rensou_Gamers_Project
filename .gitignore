@@ -16,6 +16,7 @@ thinking_state.txt
 yes_history_left.txt
 yes_history_right.txt
 *.log
+suggested_templates.txt
 
 # --- バックアップフォルダ（容量の節約） ---
 backup_v1_faundation/
